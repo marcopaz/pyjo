@@ -12,12 +12,12 @@ class Field(object):
     editable = True
 
     def __init__(self, default=no_default, editable=True, type=None,
-                 to_json=None, from_json=None, repr=False):
+                 to_pyjson=None, from_pyjson=None, repr=False):
         self.type = type
         self.repr = repr
         self.editable = editable
-        self._to_json = to_json
-        self._from_json = from_json
+        self._to_pyjson = to_pyjson
+        self._from_pyjson = from_pyjson
         self._default = default
 
     @property
@@ -31,18 +31,18 @@ class Field(object):
     def has_default(self):
         return self._default != no_default
 
-    def to_json(self, value):
-        if self._to_json is not None:
-            return self._to_json(value)
-        if isinstance(value, object) and hasattr(value, 'to_json'):
-            return value.to_json()
+    def to_pyjson(self, value):
+        if self._to_pyjson is not None:
+            return self._to_pyjson(value)
+        if isinstance(value, object) and hasattr(value, 'to_pyjson'):
+            return value.to_pyjson()
         return value
 
-    def from_json(self, value):
-        if self._from_json is not None:
-            return self._from_json(value)
-        if self.type and hasattr(self.type, 'from_json'):
-            return self.type.from_json(value)
+    def from_pyjson(self, value):
+        if self._from_pyjson is not None:
+            return self._from_pyjson(value)
+        if self.type and hasattr(self.type, 'from_pyjson'):
+            return self.type.from_pyjson(value)
         return value
 
     def __repr__(self):
@@ -51,9 +51,10 @@ class Field(object):
 
 
 class ConstField(Field):
-    def __init__(self, value, repr=False, _to_json=None, _from_json=None):
-        super(ConstField, self).__init__(default=value, editable=False, repr=repr,
-                                         to_json=_to_json, from_json=_from_json)
+    def __init__(self, value, **kwargs):
+        kwargs['default'] = value
+        kwargs['editable'] = False
+        super(ConstField, self).__init__(**kwargs)
 
     def __repr__(self):
         return '<{}(value={})>'.format(
@@ -65,11 +66,11 @@ class EnumField(Field):
         super(EnumField, self).__init__(type=enum, **kwargs)
         self.enum_cls = enum
 
-    def to_json(self, value):
+    def to_pyjson(self, value):
         if value is not None:
             return value.name
 
-    def from_json(self, name):
+    def from_pyjson(self, name):
         if name is not None:
             return self.enum_cls[name]
 
@@ -81,21 +82,21 @@ class ModelListField(Field):
         self.model = model
         self.add_model_key = add_model_key
 
-    def to_json(self, value):
-        if self._to_json is not None:
-            return self._to_json(value)
+    def to_pyjson(self, value):
+        if self._to_pyjson is not None:
+            return self._to_pyjson(value)
         res = []
         for x in value:
-            v = copy(x.to_json())
+            v = copy(x.to_pyjson())
             if self.add_model_key:
                 v["__model__"] = str(x.__class__.__name__)
             res.append(v)
         return res
 
-    def from_json(self, value):
-        if self._from_json is not None:
-            return self._from_json(value)
-        return [self.model.from_json(x) for x in value]
+    def from_pyjson(self, value):
+        if self._from_pyjson is not None:
+            return self._from_pyjson(value)
+        return [self.model.from_pyjson(x) for x in value]
 
 
 class RegexField(Field):

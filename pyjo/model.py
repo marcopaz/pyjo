@@ -75,14 +75,14 @@ class Model(object):
         return value
 
     @classmethod
-    def from_json(cls, value):
+    def from_pyjson(cls, value):
         fields = cls.get_fields()
         for name, field in fields.items():
             if value.get(name) is not None:
-                value[name] = field.from_json(value[name])
+                value[name] = field.from_pyjson(value[name])
         return cls(**value)
 
-    def to_json(self):
+    def to_pyjson(self):
         fields = self.get_fields()
         res = {}
         for name, field in fields.items():
@@ -90,16 +90,16 @@ class Model(object):
                 value = getattr(self, name)
             except AttributeError:
                 value = None
-            res[name] = field.to_json(value)
+            res[name] = field.to_pyjson(value)
         return res
 
     @classmethod
-    def from_string(cls, value):
+    def from_json(cls, value):
         v = json.loads(value)
-        return cls.from_json(v)
+        return cls.from_pyjson(v)
 
-    def to_string(self, indent=None):
-        return json.dumps(self.to_json(), indent=indent)
+    def to_json(self, indent=None):
+        return json.dumps(self.to_pyjson(), indent=indent)
 
     def __repr__(self):
         fields = self.get_fields()

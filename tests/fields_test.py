@@ -17,7 +17,7 @@ class FieldsModel(unittest.TestCase):
             foo = EnumField(MyEnum)
 
         a = A(foo=MyEnum.foo1)
-        self.assertEqual(a.to_json()['foo'], 'foo1')
+        self.assertEqual(a.to_pyjson()['foo'], 'foo1')
 
         with self.assertRaises(InvalidType):
             a.foo = 'foo2'
@@ -35,8 +35,8 @@ class FieldsModel(unittest.TestCase):
         self.assertEqual(a.foo[1].n, 2)
         self.assertEqual(a.foo[2].n, 3)
 
-        self.assertEqual(a.to_json(), {'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
-        aa = A.from_json({'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
+        self.assertEqual(a.to_pyjson(), {'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
+        aa = A.from_pyjson({'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
         self.assertEqual(len(aa.foo), 3)
         self.assertEqual(aa.foo[1].n, 2)
 
@@ -47,7 +47,7 @@ class FieldsModel(unittest.TestCase):
 
         a = A()
         self.assertEqual(a.foo, 'hello')
-        self.assertEqual(a.to_json()['foo'], 'hello')
+        self.assertEqual(a.to_pyjson()['foo'], 'hello')
 
         with self.assertRaises(NotEditableField):
             a.foo = 'olleh'
@@ -62,7 +62,7 @@ class FieldsModel(unittest.TestCase):
 
         a = A(foo=20)
         self.assertEqual(a.foo, 20)
-        self.assertEqual(a.to_json()['foo'], 20)
+        self.assertEqual(a.to_pyjson()['foo'], 20)
 
         with self.assertRaises(InvalidType):
             a.foo = 17
@@ -77,7 +77,7 @@ class FieldsModel(unittest.TestCase):
 
         a = A(foo='foo1')
         self.assertEqual(a.foo, 'foo1')
-        self.assertEqual(a.to_json()['foo'], 'foo1')
+        self.assertEqual(a.to_pyjson()['foo'], 'foo1')
 
         with self.assertRaises(InvalidType):
             a.foo = 'bar1'

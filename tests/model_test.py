@@ -65,14 +65,14 @@ class TestModel(unittest.TestCase):
             foo = Field(type=str)
             bar = Field(type=int)
         a = A(foo='hello', bar=123)
-        json = a.to_json()
+        json = a.to_pyjson()
         self.assertEqual(json , {'foo': 'hello', 'bar': 123})
 
     def test_json_deserialization(self):
         class A(Model):
             foo = Field(type=str)
             bar = Field()
-        a = A.from_json({'foo': 'hello', 'bar': 123})
+        a = A.from_pyjson({'foo': 'hello', 'bar': 123})
         self.assertEqual(a.foo, 'hello')
         self.assertEqual(a.bar, 123)
 
@@ -81,7 +81,7 @@ class TestModel(unittest.TestCase):
             foo = Field(type=str)
             bar = Field()
         with self.assertRaises(RequiredField):
-            a = A.from_json({'bar': 123})
+            a = A.from_pyjson({'bar': 123})
 
     def test_json_with_submodel(self):
         class A(Model):
@@ -95,18 +95,18 @@ class TestModel(unittest.TestCase):
         b = B(submodel=a)
 
         # serialization / deserialization of the submodel
-        json = b.to_json()
+        json = b.to_pyjson()
         self.assertEqual(json, {'submodel': {'bar': 123, 'foo': 'foo'}})
-        c = B.from_json(json)
+        c = B.from_pyjson(json)
         self.assertEqual(c.submodel.foo, 'foo')
         self.assertEqual(c.submodel.bar, 123)
 
         # missing required fields of the submodel
         with self.assertRaises(RequiredField):
-            B.from_json({'submodel': {'bar': 123}})
+            B.from_pyjson({'submodel': {'bar': 123}})
 
         # default values of the submodel's fields
-        d = B.from_json({'submodel': {'foo': 'foo'}})
+        d = B.from_pyjson({'submodel': {'foo': 'foo'}})
         self.assertEqual(d.submodel.bar, 0)
 
 
