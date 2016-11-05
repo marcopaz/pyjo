@@ -10,7 +10,7 @@ class RequiredField(Error):
 
 class InvalidType(Error):
     def __init__(self, field_name, type, value):
-        message = 'Field \'{}\' is not of type {}, had value \'{}\''.format(field_name, type, value)
+        message = 'The value of the field \'{}\' is not of type {}, given {}'.format(field_name, type, value)
         super(InvalidType, self).__init__(message)
 
 
