@@ -76,18 +76,28 @@ class TestModel(unittest.TestCase):
     def test_json_with_submodel(self):
         class A(Model):
             foo = Field(type=str)
-            bar = Field(type=int)
+            bar = Field(type=int, default=0)
 
         class B(Model):
             submodel = Field(type=A)
 
-        b = B(submodel=A(foo='foo', bar=123))
-        json = b.to_json()
+        a = A(foo='foo', bar=123)
+        b = B(submodel=a)
 
+        # serialization / deserialization of the submodel
+        json = b.to_json()
         self.assertEqual(json, {'submodel': {'bar': 123, 'foo': 'foo'}})
         c = B.from_json(json)
         self.assertEqual(c.submodel.foo, 'foo')
         self.assertEqual(c.submodel.bar, 123)
+
+        # missing required fields of the submodel
+        with self.assertRaises(RequiredField):
+            B.from_json({'submodel': {'bar': 123}})
+
+        # default values of the submodel's fields
+        d = B.from_json({'submodel': {'foo': 'foo'}})
+        self.assertEqual(d.submodel.bar, 0)
 
 
 if __name__ == '__main__':
