@@ -98,8 +98,8 @@ class Model(object):
         v = json.loads(value)
         return cls.from_json(v)
 
-    def to_string(self):
-        return json.dumps(self.to_json())
+    def to_string(self, indent=None):
+        return json.dumps(self.to_json(), indent=indent)
 
     def __repr__(self):
         fields = self.get_fields()
