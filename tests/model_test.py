@@ -1,6 +1,6 @@
 import unittest
 
-from pyjo import Model, Field, ConstField
+from pyjo import Model, Field
 from pyjo.exceptions import RequiredField, NotEditableField, InvalidType
 
 
@@ -18,13 +18,23 @@ class TestModel(unittest.TestCase):
         a = A()
         self.assertEqual(a.foo, 'foo')
 
-    def test_constant_field(self):
+    def test_editable_field(self):
         class A(Model):
-            foo = ConstField('foo')
-        a = A()
-        self.assertEqual(a.foo, 'foo')
+            foo = Field(default='foo', editable=True)
+        a = A(foo=123)
+        self.assertEqual(a.foo, 123)
+        a.foo = 321
+        self.assertEqual(a.foo, 321)
+
+    def test_not_editable_field(self):
+        class A(Model):
+            foo = Field(editable=False)
+
+        a = A(foo=123)
+        self.assertEqual(a.foo, 123)
+
         with self.assertRaises(NotEditableField):
-            a.foo = 'bar'
+            a.foo = 321
 
     def test_invalid_type_on_init(self):
         class A(Model):
