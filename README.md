@@ -49,7 +49,7 @@ u = User(name=123, age=18, address=Address(city='NYC'))
 ```
 
 ```python
-uu.address.city = 1
+u.address.city = 1
 # ...
 # pyjo.exceptions.InvalidType: The value of the field 'city' is not of type <class 'str'>, given 1
 ```
@@ -118,7 +118,7 @@ The `Field` constructor has several _optional_ arguments:
 * `to_json()`, `from_json()` shortcuts for `json.dumps(model.to_pyjson())` and `model.from_pyjson(json.loads(s))`
 
 
-### Field subclasses
+## Field subclasses
 
 You can create subclasses of `Field` to handle specific types of objects. Several of them are already integrated in pyjo and more are coming (feel free to create a PR to add more):
 
