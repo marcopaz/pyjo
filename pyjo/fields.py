@@ -65,10 +65,12 @@ class EnumField(Field):
         self.enum_cls = enum
 
     def to_json(self, value):
-        return value.name
+        if value is not None:
+            return value.name
 
     def from_json(self, name):
-        return self.enum_cls[name]
+        if name is not None:
+            return self.enum_cls[name]
 
 
 class ModelListField(Field):
