@@ -11,7 +11,7 @@ class Model(object):
 
     def __init__(self, **kwargs):
         kwargs = self._set_defaults(**kwargs)
-        self._check_attributes(**kwargs)
+        self._check_required_attributes(**kwargs)
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
 
@@ -21,16 +21,17 @@ class Model(object):
             kwargs[name] = kwargs.get(name, field.default)
         return kwargs
 
-    def _check_attributes(self, **kwargs):
+    def _check_required_attributes(self, **kwargs):
         fields = self.get_fields()
         for name, field in fields.items():
             value = kwargs.get(name)
             if field.required and value is None:
                 raise RequiredField(field_name=name)
-            self._check_type(name, field, value)
 
     def _check_type(self, field_name, field, value):
         if field.type is not None:
+            if not field.required and value is None:
+                return
             if isinstance(field.type, type):
                 if not isinstance(value, field.type):
                     raise InvalidType(field_name=field_name, type=field.type, value=value)
