@@ -13,6 +13,7 @@ setup(
     version=version,
     description='Python JSON Objects',
     url='https://github.com/marcopaz/pyjo',
+    download_url = 'https://github.com/marcopaz/pyjo/tarball/{}'.format(version),
     long_description=open('README.md').read(),
     author='Marco Pazzaglia',
     author_email='marco@pazzaglia.me',
