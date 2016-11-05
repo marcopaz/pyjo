@@ -33,11 +33,15 @@ class Field(object):
     def to_json(self, value):
         if self._to_json is not None:
             return self._to_json(value)
+        if isinstance(value, object) and hasattr(value, 'to_json'):
+            return value.to_json()
         return value
 
     def from_json(self, value):
         if self._from_json is not None:
             return self._from_json(value)
+        if self.type and hasattr(self.type, 'from_json'):
+            return self.type.from_json(value)
         return value
 
     def __repr__(self):

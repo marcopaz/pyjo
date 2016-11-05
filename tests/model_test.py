@@ -73,6 +73,22 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(RequiredField):
             a = A.from_json({'bar': 123})
 
+    def test_json_with_submodel(self):
+        class A(Model):
+            foo = Field(type=str)
+            bar = Field(type=int)
+
+        class B(Model):
+            submodel = Field(type=A)
+
+        b = B(submodel=A(foo='foo', bar=123))
+        json = b.to_json()
+
+        self.assertEqual(json, {'submodel': {'bar': 123, 'foo': 'foo'}})
+        c = B.from_json(json)
+        self.assertEqual(c.submodel.foo, 'foo')
+        self.assertEqual(c.submodel.bar, 123)
+
 
 if __name__ == '__main__':
     unittest.main()
