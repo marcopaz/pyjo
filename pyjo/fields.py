@@ -1,6 +1,7 @@
+import re
 from copy import copy
 
-__all__ = ["Field", "ConstField", "EnumField", "ModelListField"]
+__all__ = ["Field", "ConstField", "EnumField", "ModelListField", "RegexField", "RangeField"]
 
 no_default = object()
 
@@ -95,3 +96,18 @@ class ModelListField(Field):
         if self._from_json is not None:
             return self._from_json(value)
         return [self.model.from_json(x) for x in value]
+
+
+class RegexField(Field):
+    def __init__(self, regex, **kwargs):
+        def type_(x):
+            return isinstance(x, str) and re.match(regex, x)
+        super(RegexField, self).__init__(type=type_, **kwargs)
+
+
+class RangeField(Field):
+    def __init__(self, min=None, max=None, **kwargs):
+        def type_(x):
+            return isinstance(x, int) and (min is None or min <= x) and (max is None or max >= x)
+        super(RangeField, self).__init__(type=type_, **kwargs)
+
