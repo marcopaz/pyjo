@@ -1,26 +1,10 @@
 import unittest
 
-from pyjo import Model, Field, ConstField, EnumField, RangeField, RegexField, ListField
-from pyjo.exceptions import RequiredField, NotEditableField, InvalidType
-from enum import Enum
+from pyjo import Model, Field, ListField, RegexField
+from pyjo.exceptions import InvalidType
 
 
-class FieldsModel(unittest.TestCase):
-
-    def test_enum_field(self):
-
-        class MyEnum(Enum):
-            foo1 = 1
-            foo2 = 2
-
-        class A(Model):
-            foo = EnumField(MyEnum)
-
-        a = A(foo=MyEnum.foo1)
-        self.assertEqual(a.to_pyjson()['foo'], 'foo1')
-
-        with self.assertRaises(InvalidType):
-            a.foo = 'foo2'
+class ListFieldTest(unittest.TestCase):
 
     def test_model_list_field(self):
         class B(Model):
@@ -78,48 +62,6 @@ class FieldsModel(unittest.TestCase):
 
         with self.assertRaises(InvalidType):
             a.foo[1] = 'olleh'
-
-    def test_const_field(self):
-
-        class A(Model):
-            foo = ConstField('hello')
-
-        a = A()
-        self.assertEqual(a.foo, 'hello')
-        self.assertEqual(a.to_pyjson()['foo'], 'hello')
-
-        with self.assertRaises(NotEditableField):
-            a.foo = 'olleh'
-
-    def test_range_field(self):
-
-        class A(Model):
-            foo = RangeField(min=18, max=80)
-
-        with self.assertRaises(RequiredField):
-            A()
-
-        a = A(foo=20)
-        self.assertEqual(a.foo, 20)
-        self.assertEqual(a.to_pyjson()['foo'], 20)
-
-        with self.assertRaises(InvalidType):
-            a.foo = 17
-
-    def test_regex_field(self):
-
-        class A(Model):
-            foo = RegexField('foo[0-9]')
-
-        with self.assertRaises(RequiredField):
-            A()
-
-        a = A(foo='foo1')
-        self.assertEqual(a.foo, 'foo1')
-        self.assertEqual(a.to_pyjson()['foo'], 'foo1')
-
-        with self.assertRaises(InvalidType):
-            a.foo = 'bar1'
 
 
 if __name__ == '__main__':

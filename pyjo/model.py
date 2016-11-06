@@ -2,7 +2,7 @@ import json
 from typing import Dict
 
 from pyjo.exceptions import RequiredField, InvalidType, NotEditableField
-from pyjo.fields import Field
+from pyjo.fields.field import Field
 
 __all__ = ["Model"]
 
