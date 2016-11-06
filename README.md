@@ -128,3 +128,4 @@ You can create subclasses of `Field` to handle specific types of objects. Severa
 * `ListField` for fields containing a list of elements
 * `RegexField` for fields containing a string that matches a given regex
 * `RangeField` for fields containing a int with optional minimum/maximum value
+* `DatetimeField` for fields containing a datetime
