@@ -59,7 +59,25 @@ class FieldsModel(unittest.TestCase):
         a.foo = ['foo1']
         self.assertEqual(len(a.foo), 1)
         with self.assertRaises(InvalidType):
-            a.foo = ['foo']
+            a.foo = ['bar']
+        with self.assertRaises(InvalidType):
+            a.foo[0] = 'bar'
+
+    def test_list_with_subtype(self):
+
+        class A(Model):
+            foo = ListField(str)
+
+        a = A(foo=['foo1', 'foo2', 'foo3'])
+
+        with self.assertRaises(InvalidType):
+            a = A(foo=['foo1', 2, 'foo3'])
+
+        with self.assertRaises(InvalidType):
+            a.foo = 'olleh'
+
+        with self.assertRaises(InvalidType):
+            a.foo[1] = 'olleh'
 
     def test_const_field(self):
 

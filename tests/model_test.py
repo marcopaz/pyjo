@@ -18,6 +18,20 @@ class TestModel(unittest.TestCase):
         a = A()
         self.assertEqual(a.foo, 'foo')
 
+    def test_default_value_invalid_type(self):
+        class A(Model):
+            foo = Field(default='foo', type=int)
+
+        with self.assertRaises(InvalidType):
+            a = A()
+
+    def test_type_empty_default(self):
+        class A(Model):
+            foo = Field(type=str, default=None)
+        a = A()
+        a.foo = 'hello'
+        self.assertEqual(a.foo, 'hello')
+
     def test_editable_field(self):
         class A(Model):
             foo = Field(default='foo', editable=True)

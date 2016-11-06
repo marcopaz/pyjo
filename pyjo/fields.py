@@ -1,5 +1,4 @@
 import re
-from copy import copy
 
 from pyjo.exceptions import InvalidType
 
@@ -41,17 +40,17 @@ class Field(object):
 
     def check_value(self, value):
         if not self.required and value is None:
-            return
-        if self.type is not None:
-            self.check_type(value)
-
-    def check_type(self, value):
+            return True
         if isinstance(self.type, type):
             if not isinstance(value, self.type):
-                raise InvalidType(attr_name=self.attr_name, type=self.type, value=value)
+                return False
         elif callable(self.type):
             if not self.type(value):
-                raise InvalidType(attr_name=self.attr_name, type=self.type, value=value)
+                return False
+        return True
+
+    def patch_value(self, value):
+        return value
 
     def to_pyjson(self, value):
         if self._to_pyjson is not None:
@@ -111,20 +110,32 @@ class ListField(Field):
         :type model: T
         :rtype: list[T]
         """
-        subfield = None
-        check_subtype = lambda y: isinstance(y, subtype)
-
-        if isinstance(subtype, Field):
-            subfield = subtype
-            subtype = subtype.type or object
-            check_subtype = subfield.check_value
-
-        type = lambda x: isinstance(x, list) and \
-                         (not check_elements_type or [check_subtype(y) for y in x])
-
-        super(ListField, self).__init__(type=type, **kwargs)
+        super(ListField, self).__init__(type=self.check_type, **kwargs)
         self.subtype = subtype
-        self.subfield = subfield
+        self.check_elements_type = check_elements_type
+
+    def check_subtype(self, value):
+        if isinstance(self.subtype, Field):
+            return self.subtype.check_value(value)
+        else:
+            return isinstance(value, self.subtype)
+
+    def check_type(self, value):
+        return isinstance(value, list) and (
+                    not self.check_elements_type or all(self.check_subtype(x) for x in value))
+
+    def patch_value(self, value):
+
+        class TypedList(list):
+            def __setitem__(_self, item_key, item_value):
+                if not self.check_subtype(value):
+                    raise InvalidType(attr_name=self.attr_name, type=self.check_subtype, value=item_value)
+                return super(TypedList, _self).__setitem__(item_key, item_value)
+
+        if self.check_elements_type and hasattr(value, '__setitem__'):
+            value = TypedList(value)
+
+        return value
 
     def to_pyjson(self, value):
         if self._to_pyjson is not None:
@@ -141,9 +152,7 @@ class ListField(Field):
             return self._from_pyjson(value)
         res = []
         for x in value:
-            if hasattr(self.subfield, 'from_pyjson'):
-                x = self.subfield.from_pyjson(x)
-            elif hasattr(self.subtype, 'from_pyjson'):
+            if hasattr(self.subtype, 'from_pyjson'):
                 x = self.subtype.from_pyjson(x)
             res.append(x)
         return res
@@ -167,4 +176,3 @@ class RangeField(Field):
         def type_(x):
             return isinstance(x, int) and (min is None or min <= x) and (max is None or max >= x)
         super(RangeField, self).__init__(type=type_, **kwargs)
-

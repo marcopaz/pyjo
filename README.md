@@ -4,7 +4,7 @@
 
 > Python JSON Objects
 
-Dead simple (~250 LOC) library to easily specify, serialize, and deserialize models in Python. 
+Library to easily specify and (de)serialize data models in Python.
 
 ## Install
 
@@ -125,6 +125,6 @@ The `Field` constructor has several _optional_ arguments:
 You can create subclasses of `Field` to handle specific types of objects. Several of them are already integrated in pyjo and more are coming (feel free to create a PR to add more):
 
 * `ConstField` for constant fields (shortcut for `Field` with `editable=False`)
-* `ModelListField` for fields containing a list of `Model` elements
+* `ListField` for fields containing a list of elements
 * `RegexField` for fields containing a string that matches a given regex
 * `RangeField` for fields containing a int with optional minimum/maximum value
