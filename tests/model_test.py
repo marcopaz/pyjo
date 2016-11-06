@@ -153,5 +153,15 @@ class TestModel(unittest.TestCase):
         self.assertEqual(a.foo, 'hello')
         self.assertEqual(hasattr(a, 'foo2'), False)
 
+    def test_model_repr(self):
+        class A(Model):
+            foo = Field(type=str)
+
+        self.assertEquals(str(A(foo='bar')), '<A()>')
+
+        class A(Model):
+            foo = Field(type=str, repr=True)
+
+        self.assertEquals(str(A(foo='bar')), '<A(foo=bar)>')
 if __name__ == '__main__':
     unittest.main()

@@ -101,7 +101,7 @@ class Model(object):
 
         res = []
         for name,field in fields.items():
-            if not field.repr:
+            if not field._repr:
                 continue
             try:
                 value = getattr(self, name)
