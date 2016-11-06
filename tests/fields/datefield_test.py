@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime
 
 from pyjo import Model, DatetimeField
-from pyjo.exceptions import InvalidType
+from pyjo.exceptions import TypeError
 
 
 class DatetimeFieldTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class DatetimeFieldTest(unittest.TestCase):
         a = A(date=dt)
         self.assertEqual(a.date, dt)
 
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(TypeError):
             a.date = 'hello'
 
         pj = a.to_pyjson()

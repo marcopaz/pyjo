@@ -1,5 +1,6 @@
+from datetime import datetime
+
 from pyjo.fields.field import Field
-from datetime import datetime, timedelta, tzinfo
 
 
 def dt_to_timestamp(dt):

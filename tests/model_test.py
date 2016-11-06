@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, Field
-from pyjo.exceptions import RequiredField, NotEditableField, InvalidType, InvalidValue
+from pyjo.exceptions import RequiredFieldError, NotEditableField, TypeError, ValidationError
 
 
 class TestModel(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestModel(unittest.TestCase):
     def test_required_field(self):
         class A(Model):
             foo = Field()
-        with self.assertRaises(RequiredField):
+        with self.assertRaises(RequiredFieldError):
             a = A()
 
     def test_default_value(self):
@@ -22,7 +22,7 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(default='foo', type=int)
 
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(TypeError):
             a = A()
 
     def test_type_empty_default(self):
@@ -53,7 +53,7 @@ class TestModel(unittest.TestCase):
     def test_invalid_type_on_init(self):
         class A(Model):
             foo = Field(type=str)
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(TypeError):
             a = A(foo=1)
 
     def test_invalid_type_on_set(self):
@@ -61,15 +61,15 @@ class TestModel(unittest.TestCase):
             foo = Field(type=str)
         a = A(foo='foo')
         self.assertEqual(a.foo, 'foo')
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(TypeError):
             a.foo = 123
 
     def test_validator(self):
         class A(Model):
             foo = Field(type=str, validator=lambda x: x.startswith('#'))
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(TypeError):
             a = A(foo=1)
-        with self.assertRaises(InvalidValue):
+        with self.assertRaises(ValidationError):
             a = A(foo='hello')
         a = A(foo='#hello')
         self.assertEqual(a.foo, '#hello')
@@ -94,7 +94,7 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(type=str)
             bar = Field()
-        with self.assertRaises(RequiredField):
+        with self.assertRaises(RequiredFieldError):
             a = A.from_pyjson({'bar': 123})
 
     def test_json_with_submodel(self):
@@ -116,7 +116,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(c.submodel.bar, 123)
 
         # missing required fields of the submodel
-        with self.assertRaises(RequiredField):
+        with self.assertRaises(RequiredFieldError):
             B.from_pyjson({'submodel': {'bar': 123}})
 
         # default values of the submodel's fields

@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, RegexField
-from pyjo.exceptions import RequiredField, InvalidType, InvalidValue
+from pyjo.exceptions import RequiredFieldError, TypeError, ValidationError
 
 
 class RegexFieldTest(unittest.TestCase):
@@ -11,14 +11,14 @@ class RegexFieldTest(unittest.TestCase):
         class A(Model):
             foo = RegexField('foo[0-9]')
 
-        with self.assertRaises(RequiredField):
+        with self.assertRaises(RequiredFieldError):
             A()
 
         a = A(foo='foo1')
         self.assertEqual(a.foo, 'foo1')
         self.assertEqual(a.to_pyjson()['foo'], 'foo1')
 
-        with self.assertRaises(InvalidValue):
+        with self.assertRaises(ValidationError):
             a.foo = 'bar1'
 
 

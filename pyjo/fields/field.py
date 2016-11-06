@@ -1,4 +1,4 @@
-from pyjo.exceptions import InvalidType, InvalidValue
+from pyjo.exceptions import TypeError, ValidationError
 
 no_default = object()
 orig_type = type
@@ -56,9 +56,9 @@ class Field(object):
         if not self.required and value is None:
             return True
         if self._type is not None and not isinstance(value, self._type):
-            raise InvalidType(attr_name=self._attr_name, type=self._type, value=value)
+            raise TypeError(attr_name=self._attr_name, type=self._type, value=value)
         if self._validator and not self._validator(value):
-            raise InvalidValue(attr_name=self._attr_name, value=value)
+            raise ValidationError(attr_name=self._attr_name, value=value)
         return True
 
     def _patch_value(self, value):

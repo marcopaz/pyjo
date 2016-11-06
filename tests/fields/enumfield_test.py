@@ -2,7 +2,7 @@ import unittest
 from enum import Enum
 
 from pyjo import Model, EnumField
-from pyjo.exceptions import InvalidType
+from pyjo.exceptions import TypeError
 
 
 class EnumFieldTest(unittest.TestCase):
@@ -19,7 +19,7 @@ class EnumFieldTest(unittest.TestCase):
         a = A(foo=MyEnum.foo1)
         self.assertEqual(a.to_pyjson()['foo'], 'foo1')
 
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(TypeError):
             a.foo = 'foo2'
 
 
