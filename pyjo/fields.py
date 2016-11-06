@@ -37,6 +37,20 @@ class Field(object):
     def has_default(self):
         return self._default != no_default
 
+    def check_value(self, value):
+        if not self.required and value is None:
+            return
+        if self.type is not None:
+            self.check_type(value)
+
+    def check_type(self, value):
+        if isinstance(self.type, type):
+            if not isinstance(value, self.type):
+                raise InvalidType(attr_name=self.attr_name, type=self.type, value=value)
+        elif callable(self.type):
+            if not self.type(value):
+                raise InvalidType(attr_name=self.attr_name, type=self.type, value=value)
+
     def to_pyjson(self, value):
         if self._to_pyjson is not None:
             return self._to_pyjson(value)

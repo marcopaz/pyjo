@@ -28,17 +28,6 @@ class Model(object):
             if field.required and value is None:
                 raise RequiredField(field_name=name)
 
-    def _check_type(self, field_name, field, value):
-        if field.type is not None:
-            if not field.required and value is None:
-                return
-            if isinstance(field.type, type):
-                if not isinstance(value, field.type):
-                    raise InvalidType(field_name=field_name, type=field.type, value=value)
-            elif callable(field.type):
-                if not field.type(value):
-                    raise InvalidType(field_name=field_name, type=field.type, value=value)
-
     @classmethod
     def get_fields(cls):
         fields = {}
@@ -65,7 +54,7 @@ class Model(object):
             attr.attr_name = key
             if not attr.editable and hasattr(self, self._field_attr_value(key)):
                 raise NotEditableField(key)
-            self._check_type(key, attr, value)
+            attr.check_value(value)
             return object.__setattr__(self, self._field_attr_value(key), value)
         object.__setattr__(self, key, value)
 
