@@ -13,6 +13,11 @@ class Field(object):
 
     def __init__(self, default=no_default, editable=True, type=None,
                  to_pyjson=None, from_pyjson=None, repr=False):
+        """
+        :type default: T
+        :type type: U
+        :rtype: T | U
+        """
         self.type = type
         self.repr = repr
         self.editable = editable
@@ -52,6 +57,10 @@ class Field(object):
 
 class ConstField(Field):
     def __init__(self, value, **kwargs):
+        """
+        :type value: T
+        :rtype: T
+        """
         kwargs['default'] = value
         kwargs['editable'] = False
         super(ConstField, self).__init__(**kwargs)
@@ -63,6 +72,10 @@ class ConstField(Field):
 
 class EnumField(Field):
     def __init__(self, enum, **kwargs):
+        """
+        :type enum: T
+        :rtype: T
+        """
         super(EnumField, self).__init__(type=enum, **kwargs)
         self.enum_cls = enum
 
@@ -77,6 +90,10 @@ class EnumField(Field):
 
 class ModelListField(Field):
     def __init__(self, model, add_model_key=False, **kwargs):
+        """
+        :type model: T
+        :rtype: list[T]
+        """
         type = lambda x: isinstance(x, list) and all(isinstance(y, model) for y in x)
         super(ModelListField, self).__init__(type=type, **kwargs)
         self.model = model
