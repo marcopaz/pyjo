@@ -54,8 +54,7 @@ class Model(object):
             attr._attr_name = key
             if not attr._editable and hasattr(self, self._field_attr_value(key)):
                 raise NotEditableField(key)
-            if not attr.check_value(value):
-                raise InvalidType(attr_name=key, type=attr._type, value=value)
+            attr.check_value(value)
             value = attr._patch_value(value)
             return object.__setattr__(self, self._field_attr_value(key), value)
         object.__setattr__(self, key, value)

@@ -29,7 +29,7 @@ class Address(Model):
 class User(Model):
     name = Field(type=str, repr=True)
     age = RangeField(min=18, max=120)
-    #  equivalent to: Field(type=lambda x: isinstance(x, int) and 18 <= x <= 120)  
+    #  equivalent to: Field(type=int, validator=lambda x: 18 <= x <= 120)
     gender = EnumField(enum=Gender, default=None)
     address = Field(type=Address)
 ```
@@ -47,13 +47,13 @@ When specified by means of the `type` argument, also the argument types are chec
 ```python
 u = User(name=123, age=18, address=Address(city='NYC'))
 # ...
-# pyjo.exceptions.InvalidType: The value of the field 'name' is not of type <class 'str'>, given 123
+# pyjo.exceptions.InvalidType: The value of the field 'name' is not of type str, given 123
 ```
 
 ```python
 u.address.city = 1
 # ...
-# pyjo.exceptions.InvalidType: The value of the field 'city' is not of type <class 'str'>, given 1
+# pyjo.exceptions.InvalidType: The value of the field 'city' is not of type str, given 1
 ```
 
 In order to serialize a model you need to call `to_json` (to obtain a JSON string) or `to_pyjson` (to obtain a JSON-serializable python object), depending on the format you want.

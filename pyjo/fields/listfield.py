@@ -1,4 +1,4 @@
-from pyjo.exceptions import InvalidType
+from pyjo.exceptions import InvalidType, InvalidValue
 from pyjo.fields.field import Field
 
 
@@ -8,19 +8,22 @@ class ListField(Field):
         :type model: T
         :rtype: list[T]
         """
-        super(ListField, self).__init__(type=self._check_type, **kwargs)
-        self.subtype = subtype
-        self.check_elements_type = check_elements_type
+        super(ListField, self).__init__(type=list, validator=self._check_subtypes, **kwargs)
+        self._subtype = subtype
+        self._check_elements_type = check_elements_type
 
     def _check_subtype(self, value):
-        if isinstance(self.subtype, Field):
-            return self.subtype.check_value(value)
+        if isinstance(self._subtype, Field):
+            try:
+                self._subtype.check_value(value)
+            except (InvalidType, InvalidValue):
+                return False
+            return True
         else:
-            return isinstance(value, self.subtype)
+            return isinstance(value, self._subtype)
 
-    def _check_type(self, value):
-        return isinstance(value, list) and (
-                    not self.check_elements_type or all(self._check_subtype(x) for x in value))
+    def _check_subtypes(self, value):
+        return not self._check_elements_type or all(self._check_subtype(x) for x in value)
 
     def _patch_value(self, value):
 
@@ -30,7 +33,7 @@ class ListField(Field):
                     raise InvalidType(attr_name=self._attr_name, type=self._check_subtype, value=item_value)
                 return super(TypedList, _self).__setitem__(item_key, item_value)
 
-        if self.check_elements_type and hasattr(value, '__setitem__'):
+        if self._check_elements_type and hasattr(value, '__setitem__'):
             value = TypedList(value)
 
         return value
@@ -50,7 +53,7 @@ class ListField(Field):
             return self._from_pyjson(value)
         res = []
         for x in value:
-            if hasattr(self.subtype, 'from_pyjson'):
-                x = self.subtype.from_pyjson(x)
+            if hasattr(self._subtype, 'from_pyjson'):
+                x = self._subtype.from_pyjson(x)
             res.append(x)
         return res

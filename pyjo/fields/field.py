@@ -1,4 +1,7 @@
+from pyjo.exceptions import InvalidType, InvalidValue
+
 no_default = object()
+orig_type = type
 
 
 class Field(object):
@@ -8,13 +11,30 @@ class Field(object):
     _attr_name = None  # name of the attribute for which the field is used
 
     def __init__(self, default=no_default, editable=True, type=None,
-                 to_pyjson=None, from_pyjson=None, repr=False):
+                 validator=None, to_pyjson=None, from_pyjson=None, repr=False):
         """
         :type default: T
         :type type: U
         :rtype: T | U
         """
+
+        if type is not None and not isinstance(type, orig_type):
+            raise TypeError('Invalid value for type. It should be a type')
+
+        if validator is not None and not callable(validator):
+            raise TypeError('Invalid value for validator. It should be callable')
+
+        if repr is not None and not isinstance(repr, bool):
+            raise TypeError('Invalid value for repr. It should be a bool')
+
+        if to_pyjson is not None and not callable(to_pyjson):
+            raise TypeError('Invalid value for to_pyjson. It should be callable')
+
+        if from_pyjson is not None and not callable(from_pyjson):
+            raise TypeError('Invalid value for from_pyjson. It should be callable')
+
         self._type = type
+        self._validator = validator
         self._repr = repr
         self._editable = editable
         self._to_pyjson = to_pyjson
@@ -35,12 +55,10 @@ class Field(object):
     def check_value(self, value):
         if not self.required and value is None:
             return True
-        if isinstance(self._type, type):
-            if not isinstance(value, self._type):
-                return False
-        elif callable(self._type):
-            if not self._type(value):
-                return False
+        if self._type is not None and not isinstance(value, self._type):
+            raise InvalidType(attr_name=self._attr_name, type=self._type, value=value)
+        if self._validator and not self._validator(value):
+            raise InvalidValue(attr_name=self._attr_name, value=value)
         return True
 
     def _patch_value(self, value):

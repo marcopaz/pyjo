@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, Field
-from pyjo.exceptions import RequiredField, NotEditableField, InvalidType
+from pyjo.exceptions import RequiredField, NotEditableField, InvalidType, InvalidValue
 
 
 class TestModel(unittest.TestCase):
@@ -64,12 +64,12 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(InvalidType):
             a.foo = 123
 
-    def test_function_type(self):
+    def test_validator(self):
         class A(Model):
-            foo = Field(type=lambda x: isinstance(x, str) and x.startswith('#'))
+            foo = Field(type=str, validator=lambda x: x.startswith('#'))
         with self.assertRaises(InvalidType):
             a = A(foo=1)
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(InvalidValue):
             a = A(foo='hello')
         a = A(foo='#hello')
         self.assertEqual(a.foo, '#hello')

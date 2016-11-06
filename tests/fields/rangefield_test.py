@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, RangeField
-from pyjo.exceptions import RequiredField, InvalidType
+from pyjo.exceptions import RequiredField, InvalidType, InvalidValue
 
 
 class RangeFieldTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class RangeFieldTest(unittest.TestCase):
         self.assertEqual(a.foo, 20)
         self.assertEqual(a.to_pyjson()['foo'], 20)
 
-        with self.assertRaises(InvalidType):
+        with self.assertRaises(InvalidValue):
             a.foo = 17
 
 
