@@ -118,6 +118,9 @@ class ModelListField(Field):
 
 class RegexField(Field):
     def __init__(self, regex, **kwargs):
+        """
+        :rtype: str
+        """
         def type_(x):
             return isinstance(x, str) and re.match(regex, x)
         super(RegexField, self).__init__(type=type_, **kwargs)
@@ -125,6 +128,9 @@ class RegexField(Field):
 
 class RangeField(Field):
     def __init__(self, min=None, max=None, **kwargs):
+        """
+        :rtype: int
+        """
         def type_(x):
             return isinstance(x, int) and (min is None or min <= x) and (max is None or max >= x)
         super(RangeField, self).__init__(type=type_, **kwargs)
