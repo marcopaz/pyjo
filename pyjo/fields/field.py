@@ -2,10 +2,10 @@ no_default = object()
 
 
 class Field(object):
-    type = None
-    repr = False  # show value in string representation of the python object
-    editable = True
-    attr_name = None  # name of the attribute for which the field is used
+    _type = None
+    _repr = False  # show value in string representation of the python object
+    _editable = True
+    _attr_name = None  # name of the attribute for which the field is used
 
     def __init__(self, default=no_default, editable=True, type=None,
                  to_pyjson=None, from_pyjson=None, repr=False):
@@ -14,9 +14,9 @@ class Field(object):
         :type type: U
         :rtype: T | U
         """
-        self.type = type
-        self.repr = repr
-        self.editable = editable
+        self._type = type
+        self._repr = repr
+        self._editable = editable
         self._to_pyjson = to_pyjson
         self._from_pyjson = from_pyjson
         self._default = default
@@ -35,15 +35,15 @@ class Field(object):
     def check_value(self, value):
         if not self.required and value is None:
             return True
-        if isinstance(self.type, type):
-            if not isinstance(value, self.type):
+        if isinstance(self._type, type):
+            if not isinstance(value, self._type):
                 return False
-        elif callable(self.type):
-            if not self.type(value):
+        elif callable(self._type):
+            if not self._type(value):
                 return False
         return True
 
-    def patch_value(self, value):
+    def _patch_value(self, value):
         return value
 
     def to_pyjson(self, value):
@@ -56,10 +56,10 @@ class Field(object):
     def from_pyjson(self, value):
         if self._from_pyjson is not None:
             return self._from_pyjson(value)
-        if self.type and hasattr(self.type, 'from_pyjson'):
-            return self.type.from_pyjson(value)
+        if self._type and hasattr(self._type, 'from_pyjson'):
+            return self._type.from_pyjson(value)
         return value
 
     def __repr__(self):
         return '<{}(name={})>'.format(
-            self.__class__.__name__, self.attr_name)
+            self.__class__.__name__, self._attr_name)

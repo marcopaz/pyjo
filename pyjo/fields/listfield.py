@@ -8,26 +8,26 @@ class ListField(Field):
         :type model: T
         :rtype: list[T]
         """
-        super(ListField, self).__init__(type=self.check_type, **kwargs)
+        super(ListField, self).__init__(type=self._check_type, **kwargs)
         self.subtype = subtype
         self.check_elements_type = check_elements_type
 
-    def check_subtype(self, value):
+    def _check_subtype(self, value):
         if isinstance(self.subtype, Field):
             return self.subtype.check_value(value)
         else:
             return isinstance(value, self.subtype)
 
-    def check_type(self, value):
+    def _check_type(self, value):
         return isinstance(value, list) and (
-                    not self.check_elements_type or all(self.check_subtype(x) for x in value))
+                    not self.check_elements_type or all(self._check_subtype(x) for x in value))
 
-    def patch_value(self, value):
+    def _patch_value(self, value):
 
         class TypedList(list):
             def __setitem__(_self, item_key, item_value):
-                if not self.check_subtype(value):
-                    raise InvalidType(attr_name=self.attr_name, type=self.check_subtype, value=item_value)
+                if not self._check_subtype(value):
+                    raise InvalidType(attr_name=self._attr_name, type=self._check_subtype, value=item_value)
                 return super(TypedList, _self).__setitem__(item_key, item_value)
 
         if self.check_elements_type and hasattr(value, '__setitem__'):
