@@ -123,6 +123,19 @@ class TestModel(unittest.TestCase):
         d = B.from_pyjson({'submodel': {'foo': 'foo'}})
         self.assertEqual(d.submodel.bar, 0)
 
+    def test_multiple_nested_models(self):
+        class A(Model):
+            fA = Field(type=str)
+        class B(Model):
+            fB = Field(type=A)
+        class C(Model):
+            fC = Field(type=B)
+
+        c = C(fC=B(fB=A(fA='yo')))
+        pj = c.to_pyjson()
+        self.assertEqual(pj, {'fC': {'fB': {'fA': 'yo'}}})
+        c = C.from_pyjson(pj)
+        self.assertEqual(c.fC.fB.fA, 'yo')
 
 if __name__ == '__main__':
     unittest.main()
