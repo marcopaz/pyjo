@@ -62,6 +62,7 @@ class Model(object):
         except AttributeError:
             pass
         if attr is not None and isinstance(attr, Field):
+            attr.attr_name = key
             if not attr.editable and hasattr(self, self._field_attr_value(key)):
                 raise NotEditableField(key)
             self._check_type(key, attr, value)

@@ -10,6 +10,7 @@ class Field(object):
     type = None
     repr = False  # show value in string representation of the python object
     editable = True
+    attr_name = None  # name of the attribute for which the field is used
 
     def __init__(self, default=no_default, editable=True, type=None,
                  to_pyjson=None, from_pyjson=None, repr=False):
@@ -51,8 +52,8 @@ class Field(object):
         return value
 
     def __repr__(self):
-        return '<{}(type={}, default={}, repr={})>'.format(
-            self.__class__.__name__, self.type, self.default, self.repr)
+        return '<{}(name={})>'.format(
+            self.__class__.__name__, self.attr_name)
 
 
 class ConstField(Field):
