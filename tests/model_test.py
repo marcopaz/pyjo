@@ -137,5 +137,18 @@ class TestModel(unittest.TestCase):
         c = C.from_pyjson(pj)
         self.assertEqual(c.fC.fB.fA, 'yo')
 
+    def test_discard_non_fields(self):
+
+        class A(Model):
+            foo = Field(type=str)
+
+        a = A.from_pyjson({'foo': 'hello', 'foo2': 'hello2'}, discard_non_fields=False)
+        self.assertEqual(a.foo, 'hello')
+        self.assertEqual(a.foo2, 'hello2')
+
+        a = A.from_pyjson({'foo': 'hello', 'foo2': 'hello2'}, discard_non_fields=True)
+        self.assertEqual(a.foo, 'hello')
+        self.assertEqual(hasattr(a, 'foo2'), False)
+
 if __name__ == '__main__':
     unittest.main()

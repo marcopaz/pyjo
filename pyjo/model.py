@@ -67,11 +67,16 @@ class Model(object):
         return value
 
     @classmethod
-    def from_pyjson(cls, value):
+    def from_pyjson(cls, value, discard_non_fields=True):
         fields = cls.get_fields()
+        field_values = {}
         for name, field in fields.items():
             if value.get(name) is not None:
-                value[name] = field.from_pyjson(value[name])
+                field_values[name] = field.from_pyjson(value[name])
+        if discard_non_fields:
+            value = field_values
+        else:
+            value.update(field_values)
         return cls(**value)
 
     def to_pyjson(self):
@@ -86,9 +91,9 @@ class Model(object):
         return res
 
     @classmethod
-    def from_json(cls, value):
+    def from_json(cls, value, discard_non_fields=True):
         v = json.loads(value)
-        return cls.from_pyjson(v)
+        return cls.from_pyjson(v, discard_non_fields=discard_non_fields)
 
     def to_json(self, indent=None):
         return json.dumps(self.to_pyjson(), indent=indent)
