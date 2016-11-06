@@ -44,7 +44,7 @@ class ListFieldTest(unittest.TestCase):
         self.assertEqual(len(a.foo), 1)
         with self.assertRaises(ValidationError):
             a.foo = ['bar']
-        with self.assertRaises(FieldTypeError):
+        with self.assertRaises(ValidationError):
             a.foo[0] = 'bar'
 
     def test_list_with_subtype(self):
@@ -54,14 +54,32 @@ class ListFieldTest(unittest.TestCase):
 
         a = A(foo=['foo1', 'foo2', 'foo3'])
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(FieldTypeError):
             a = A(foo=['foo1', 2, 'foo3'])
 
         with self.assertRaises(FieldTypeError):
             a.foo = 'olleh'
 
         with self.assertRaises(FieldTypeError):
-            a.foo[1] = 'olleh'
+            a.foo[1] = 1
+
+    def test_nested_lists_errors(self):
+
+        class A(Model):
+            foo = ListField(ListField(int))
+
+        try:
+            a = A(foo=[['foo']])
+        except FieldTypeError as e:
+            self.assertEqual(e.message, 'foo[0][0] is not of type int')
+
+        class A(Model):
+            foo = ListField(ListField(RegexField('[a-c][0-9]')))
+
+        try:
+            a = A(foo=[['a0', 'yo']])
+        except ValidationError as e:
+            self.assertEqual(e.message, 'foo[0][1] did not pass the validation: value did not match regex')
 
 
 if __name__ == '__main__':

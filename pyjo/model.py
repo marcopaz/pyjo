@@ -1,6 +1,6 @@
 import json
 
-from pyjo.exceptions import RequiredFieldError, NotEditableField
+from pyjo.exceptions import RequiredFieldError, NotEditableField, ValidationError, FieldTypeError
 from pyjo.fields.field import Field
 
 __all__ = ["Model"]
@@ -25,7 +25,7 @@ class Model(object):
         for name, field in fields.items():
             value = kwargs.get(name)
             if field.required and value is None:
-                raise RequiredFieldError(field_name=name)
+                raise RequiredFieldError('Field \'{}\' is required'.format(name))
 
     @classmethod
     def get_fields(cls):

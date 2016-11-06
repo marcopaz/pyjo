@@ -137,6 +137,9 @@ class TestModel(unittest.TestCase):
         c = C.from_pyjson(pj)
         self.assertEqual(c.fC.fB.fA, 'yo')
 
+        with self.assertRaises(FieldTypeError):
+            c = C(fC=B(fB=A(fA=1)))
+
     def test_discard_non_fields(self):
 
         class A(Model):
