@@ -1,6 +1,6 @@
 import unittest
 
-from pyjo import Model, Field, ConstField, EnumField, RangeField, RegexField, ModelListField
+from pyjo import Model, Field, ConstField, EnumField, RangeField, RegexField, ListField
 from pyjo.exceptions import RequiredField, NotEditableField, InvalidType
 from enum import Enum
 
@@ -27,7 +27,7 @@ class FieldsModel(unittest.TestCase):
             n = Field(type=int)
 
         class A(Model):
-            foo = ModelListField(B)
+            foo = ListField(B)
 
         a = A(foo=[B(n=1), B(n=2), B(n=3)])
         self.assertEqual(len(a.foo), 3)
@@ -39,6 +39,27 @@ class FieldsModel(unittest.TestCase):
         aa = A.from_pyjson({'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
         self.assertEqual(len(aa.foo), 3)
         self.assertEqual(aa.foo[1].n, 2)
+
+    def test_list_of_fields(self):
+
+        class A(Model):
+            foo = ListField(RegexField('foo[0-9]'))
+
+        a = A(foo=['foo1', 'foo2', 'foo3'])
+        self.assertEqual(len(a.foo), 3)
+        self.assertEqual(a.foo[0], 'foo1')
+        self.assertEqual(a.foo[1], 'foo2')
+        self.assertEqual(a.foo[2], 'foo3')
+
+        self.assertEqual(a.to_pyjson(), {'foo': ['foo1', 'foo2', 'foo3']})
+        aa = A.from_pyjson({'foo': ['foo1', 'foo2', 'foo3']})
+        self.assertEqual(len(aa.foo), 3)
+        self.assertEqual(aa.foo[1], 'foo2')
+
+        a.foo = ['foo1']
+        self.assertEqual(len(a.foo), 1)
+        with self.assertRaises(InvalidType):
+            a.foo = ['foo']
 
     def test_const_field(self):
 

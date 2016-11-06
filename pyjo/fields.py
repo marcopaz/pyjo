@@ -1,7 +1,9 @@
 import re
 from copy import copy
 
-__all__ = ["Field", "ConstField", "EnumField", "ModelListField", "RegexField", "RangeField"]
+from pyjo.exceptions import InvalidType
+
+__all__ = ["Field", "ConstField", "EnumField", "ListField", "RegexField", "RangeField"]
 
 no_default = object()
 
@@ -103,32 +105,48 @@ class EnumField(Field):
             return self.enum_cls[name]
 
 
-class ModelListField(Field):
-    def __init__(self, model, add_model_key=False, **kwargs):
+class ListField(Field):
+    def __init__(self, subtype, check_elements_type=True, **kwargs):
         """
         :type model: T
         :rtype: list[T]
         """
-        type = lambda x: isinstance(x, list) and all(isinstance(y, model) for y in x)
-        super(ModelListField, self).__init__(type=type, **kwargs)
-        self.model = model
-        self.add_model_key = add_model_key
+        subfield = None
+        check_subtype = lambda y: isinstance(y, subtype)
+
+        if isinstance(subtype, Field):
+            subfield = subtype
+            subtype = subtype.type or object
+            check_subtype = subfield.check_value
+
+        type = lambda x: isinstance(x, list) and \
+                         (not check_elements_type or [check_subtype(y) for y in x])
+
+        super(ListField, self).__init__(type=type, **kwargs)
+        self.subtype = subtype
+        self.subfield = subfield
 
     def to_pyjson(self, value):
         if self._to_pyjson is not None:
             return self._to_pyjson(value)
         res = []
         for x in value:
-            v = copy(x.to_pyjson())
-            if self.add_model_key:
-                v["__model__"] = str(x.__class__.__name__)
-            res.append(v)
+            if hasattr(x, 'to_pyjson'):
+                x = x.to_pyjson()
+            res.append(x)
         return res
 
     def from_pyjson(self, value):
         if self._from_pyjson is not None:
             return self._from_pyjson(value)
-        return [self.model.from_pyjson(x) for x in value]
+        res = []
+        for x in value:
+            if hasattr(self.subfield, 'from_pyjson'):
+                x = self.subfield.from_pyjson(x)
+            elif hasattr(self.subtype, 'from_pyjson'):
+                x = self.subtype.from_pyjson(x)
+            res.append(x)
+        return res
 
 
 class RegexField(Field):
