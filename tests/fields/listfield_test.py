@@ -71,7 +71,7 @@ class ListFieldTest(unittest.TestCase):
         try:
             a = A(foo=[['foo']])
         except FieldTypeError as e:
-            self.assertEqual(e.message, 'foo[0][0] is not of type int')
+            self.assertEqual(e.message, 'A.foo[0][0] is not of type int')
 
         class A(Model):
             foo = ListField(ListField(RegexField('[a-c][0-9]')))
@@ -79,7 +79,7 @@ class ListFieldTest(unittest.TestCase):
         try:
             a = A(foo=[['a0', 'yo']])
         except ValidationError as e:
-            self.assertEqual(e.message, 'foo[0][1] did not pass the validation: value did not match regex')
+            self.assertEqual(e.message, 'A.foo[0][1] did not pass the validation: value did not match regex')
 
 
 if __name__ == '__main__':
