@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, Field, ListField, RegexField
-from pyjo.exceptions import TypeError, ValidationError
+from pyjo.exceptions import FieldTypeError, ValidationError
 
 
 class ListFieldTest(unittest.TestCase):
@@ -44,7 +44,7 @@ class ListFieldTest(unittest.TestCase):
         self.assertEqual(len(a.foo), 1)
         with self.assertRaises(ValidationError):
             a.foo = ['bar']
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a.foo[0] = 'bar'
 
     def test_list_with_subtype(self):
@@ -57,10 +57,10 @@ class ListFieldTest(unittest.TestCase):
         with self.assertRaises(ValidationError):
             a = A(foo=['foo1', 2, 'foo3'])
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a.foo = 'olleh'
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a.foo[1] = 'olleh'
 
 

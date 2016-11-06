@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, Field
-from pyjo.exceptions import RequiredFieldError, NotEditableField, TypeError, ValidationError
+from pyjo.exceptions import RequiredFieldError, NotEditableField, FieldTypeError, ValidationError
 
 
 class TestModel(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(default='foo', type=int)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a = A()
 
     def test_type_empty_default(self):
@@ -53,7 +53,7 @@ class TestModel(unittest.TestCase):
     def test_invalid_type_on_init(self):
         class A(Model):
             foo = Field(type=str)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a = A(foo=1)
 
     def test_invalid_type_on_set(self):
@@ -61,13 +61,13 @@ class TestModel(unittest.TestCase):
             foo = Field(type=str)
         a = A(foo='foo')
         self.assertEqual(a.foo, 'foo')
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a.foo = 123
 
     def test_validator(self):
         class A(Model):
             foo = Field(type=str, validator=lambda x: x.startswith('#'))
-        with self.assertRaises(TypeError):
+        with self.assertRaises(FieldTypeError):
             a = A(foo=1)
         with self.assertRaises(ValidationError):
             a = A(foo='hello')

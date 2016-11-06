@@ -1,4 +1,4 @@
-from pyjo.exceptions import TypeError, ValidationError
+from pyjo.exceptions import FieldTypeError, ValidationError
 from pyjo.fields.field import Field
 
 
@@ -16,7 +16,7 @@ class ListField(Field):
         if isinstance(self._subtype, Field):
             try:
                 self._subtype.check_value(value)
-            except (TypeError, ValidationError):
+            except (FieldTypeError, ValidationError):
                 return False
             return True
         else:
@@ -30,7 +30,7 @@ class ListField(Field):
         class TypedList(list):
             def __setitem__(_self, item_key, item_value):
                 if not self._check_subtype(value):
-                    raise TypeError(attr_name=self._attr_name, type=self._check_subtype, value=item_value)
+                    raise FieldTypeError(attr_name=self._attr_name, type=self._check_subtype, value=item_value)
                 return super(TypedList, _self).__setitem__(item_key, item_value)
 
         if self._check_elements_type and hasattr(value, '__setitem__'):

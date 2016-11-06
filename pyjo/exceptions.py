@@ -8,10 +8,10 @@ class RequiredFieldError(Error):
         super(RequiredFieldError, self).__init__(message)
 
 
-class TypeError(Error):
+class FieldTypeError(Error):
     def __init__(self, attr_name, type, value):
         message = 'The value of the field \'{}\' is not of type {}, given {}'.format(attr_name, type.__name__, value)
-        super(TypeError, self).__init__(message)
+        super(FieldTypeError, self).__init__(message)
 
 
 class ValidationError(Error):

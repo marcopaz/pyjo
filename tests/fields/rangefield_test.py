@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, RangeField
-from pyjo.exceptions import RequiredFieldError, TypeError, ValidationError
+from pyjo.exceptions import RequiredFieldError, FieldTypeError, ValidationError
 
 
 class RangeFieldTest(unittest.TestCase):
