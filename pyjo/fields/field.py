@@ -70,9 +70,6 @@ class Field(object):
                 raise ValidationError('{} did not pass the validation'.format(self._attr_name))
         return
 
-    def _patch_value(self, value):
-        return value
-
     def to_pyjson(self, value):
         if self._to_pyjson is not None:
             return self._to_pyjson(value)

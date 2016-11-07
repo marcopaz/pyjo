@@ -24,10 +24,10 @@ class ListFieldTest(unittest.TestCase):
         self.assertEqual(len(aa.foo), 3)
         self.assertEqual(aa.foo[1].n, 2)
 
-    def test_list_of_fields(self):
+    def test_list_serialization(self):
 
         class A(Model):
-            foo = ListField(RegexField('foo[0-9]'))
+            foo = ListField(str)
 
         a = A(foo=['foo1', 'foo2', 'foo3'])
         self.assertEqual(len(a.foo), 3)
@@ -42,44 +42,31 @@ class ListFieldTest(unittest.TestCase):
 
         a.foo = ['foo1']
         self.assertEqual(len(a.foo), 1)
-        with self.assertRaises(ValidationError):
-            a.foo = ['bar']
-        with self.assertRaises(ValidationError):
-            a.foo[0] = 'bar'
+        # with self.assertRaises(ValidationError):
+        #     a.foo[0] = 'bar'
 
-    def test_list_with_subtype(self):
+    def test_list_with_validator(self):
+        import re
+
+        def validator(values):
+            for i, x in enumerate(values):
+                if not isinstance(x, str) or not re.match('foo[0-9]', x):
+                    raise ValidationError('element at index {} does not match the regex'.format(i))
 
         class A(Model):
-            foo = ListField(str)
+            foo = ListField(str, validator=validator)
 
         a = A(foo=['foo1', 'foo2', 'foo3'])
 
-        with self.assertRaises(FieldTypeError):
+        with self.assertRaises(ValidationError):
             a = A(foo=['foo1', 2, 'foo3'])
 
         with self.assertRaises(FieldTypeError):
-            a.foo = 'olleh'
+            a.foo = 'hello'
 
-        with self.assertRaises(FieldTypeError):
-            a.foo[1] = 1
-
-    def test_nested_lists_errors(self):
-
-        class A(Model):
-            foo = ListField(ListField(int))
-
-        try:
-            a = A(foo=[['foo']])
-        except FieldTypeError as e:
-            self.assertEqual(e.message, 'A.foo[0][0] is not of type int')
-
-        class A(Model):
-            foo = ListField(ListField(RegexField('[a-c][0-9]')))
-
-        try:
-            a = A(foo=[['a0', 'yo']])
-        except ValidationError as e:
-            self.assertEqual(e.message, 'A.foo[0][1] did not pass the validation: value did not match regex')
+        # NOT IMPLEMENTED
+        # with self.assertRaises(FieldTypeError):
+        #     a.foo[1] = 1
 
 
 if __name__ == '__main__':
