@@ -174,6 +174,19 @@ class TestModel(unittest.TestCase):
 
         self.assertEquals(str(A(foo='bar')), '<A(foo=bar)>')
 
+    def test_function_default(self):
+        self.x = 0
+
+        def incr_x():
+            self.x += 1
+            return self.x
+
+        class A(Model):
+            foo = Field(type=int, default=incr_x)
+
+        self.assertEqual(A().foo, 1)
+        self.assertEqual(A().foo, 2)
+
 
 if __name__ == '__main__':
     unittest.main()

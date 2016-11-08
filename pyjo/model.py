@@ -16,7 +16,13 @@ class Model(object):
     def _set_defaults(self, **kwargs):
         fields = self.get_fields()
         for name, field in fields.items():
-            kwargs[name] = kwargs.get(name, field.default)
+            value = kwargs.get(name)
+            if value is None:
+                if callable(field.default):
+                    value = field.default()
+                else:
+                    value = field.default
+            kwargs[name] = value
         return kwargs
 
     def _check_required_attributes(self, **kwargs):
