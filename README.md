@@ -4,7 +4,7 @@
 
 > Python JSON Objects
 
-Library to easily specify and (de)serialize data models in Python.
+Easily specify and (de)serialize data models in Python.
 
 ## Install
 
@@ -14,9 +14,11 @@ pip install pyjo
 
 ## How to use
 
-First you need to create a specification of your models by using the `Model` class and of its attributes by using the the `Field` class:
+First you need to create a specification of your models and attributes by using the `Model` and the `Field` classes:
 
 ```python
+from pyjo import Model, Field, RangeField, EnumField
+
 class Gender(Enum):
     female = 0
     male = 1
@@ -34,7 +36,7 @@ class User(Model):
     address = Field(type=Address)
 ```
 
-By default any field is considered required and its presence will be checked during initialization. To modify this behavior, pass a `default` argument to the `Field` constructor:
+By default any field is considered required and its presence will be checked during initialization.
 
 ```python
 u = User(name='john', age=18)
@@ -42,10 +44,17 @@ u = User(name='john', age=18)
 # pyjo.exceptions.RequiredField: Field 'address' is required
 ```
 
+To modify this behavior, pass a `default` argument to the `Field` constructor.
+
+```python
+User(name='john', age=18, address=Address(city='NYC'))
+# <User(name=john)>
+```
+
 When specified by means of the `type` argument, also the argument types are checked during initialization and assignment:
 
 ```python
-u = User(name=123, age=18, address=Address(city='NYC'))
+User(name=123, age=18, address=Address(city='NYC'))
 # ...
 # pyjo.exceptions.InvalidType: The value of the field 'name' is not of type str, given 123
 ```
@@ -111,7 +120,7 @@ The `Field` constructor has several _optional_ arguments:
 * `default` specifies the default value for the field. When specified (even if specified with value `None`) the field is considered optional and won't raise an exception if not present during initialization
 * `repr` boolean flag to indicate if the field/value should be shown in the Python representation of the object, when printed
 * `editable` boolean flag that indicates if the field is editable after initialization (through assignment) or not. Default is `True`
-* `to_pyjson`, `from_pyjson` (methods) to add ad-hoc JSON serialization/deserialization for a specific field
+* `to_pyjson`, `from_pyjson` (functions) to add ad-hoc pyjson serialization/deserialization for the field
 
 
 ### Model
@@ -128,4 +137,4 @@ You can create subclasses of `Field` to handle specific types of objects. Severa
 * `ListField` for fields containing a list of elements
 * `RegexField` for fields containing a string that matches a given regex
 * `RangeField` for fields containing a int with optional minimum/maximum value
-* `DatetimeField` for fields containing a datetime
+* `DatetimeField` for fields containing a UTC datetime
