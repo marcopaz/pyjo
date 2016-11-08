@@ -65,6 +65,8 @@ class Model(object):
 
     @classmethod
     def from_pyjson(cls, value, discard_non_fields=True):
+        if not isinstance(value, dict):
+            raise TypeError('must be a dict')
         fields = cls.get_fields()
         field_values = {}
         for name, field in fields.items():
