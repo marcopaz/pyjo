@@ -2,7 +2,6 @@
 from setuptools import setup, find_packages
 import re
 
-version = ''
 with open('pyjo/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
 if not version:

@@ -1,5 +1,6 @@
 class Error(Exception):
     field_name = None
+
     def __init__(self, message, field_name=None):
         super(Error, self).__init__(message)
         self.message = message

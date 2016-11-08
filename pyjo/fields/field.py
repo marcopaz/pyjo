@@ -56,13 +56,15 @@ class Field(object):
         if not self.required and value is None:
             return
         if self._type is not None and not isinstance(value, self._type):
-            raise FieldTypeError('{} value is not of type {}, given {}'.format(self._attr_name, self._type.__name__, value))
+            raise FieldTypeError(
+                '{} value is not of type {}, given {}'.format(self._attr_name, self._type.__name__, value))
         if self._validator:
             try:
                 res = self._validator(value)
             except ValidationError as e:
                 if e.field_name is None:
-                    raise ValidationError('{} did not pass the validation: {}'.format(self._attr_name, e.message), field_name=self._attr_name)
+                    raise ValidationError('{} did not pass the validation: {}'.format(self._attr_name, e.message),
+                                          field_name=self._attr_name)
                 else:
                     raise
 

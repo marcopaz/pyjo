@@ -1,7 +1,7 @@
 import unittest
 
 from pyjo import Model, RegexField
-from pyjo.exceptions import RequiredFieldError, FieldTypeError, ValidationError
+from pyjo.exceptions import RequiredFieldError, ValidationError
 
 
 class RegexFieldTest(unittest.TestCase):

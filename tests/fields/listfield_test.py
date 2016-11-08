@@ -1,6 +1,6 @@
 import unittest
 
-from pyjo import Model, Field, ListField, RegexField
+from pyjo import Model, Field, ListField
 from pyjo.exceptions import FieldTypeError, ValidationError
 
 

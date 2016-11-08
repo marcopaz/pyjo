@@ -1,13 +1,12 @@
 import json
 
-from pyjo.exceptions import RequiredFieldError, NotEditableField, ValidationError, FieldTypeError
+from pyjo.exceptions import RequiredFieldError, NotEditableField
 from pyjo.fields.field import Field
 
 __all__ = ["Model"]
 
 
 class Model(object):
-
     def __init__(self, **kwargs):
         kwargs = self._set_defaults(**kwargs)
         self._check_required_attributes(**kwargs)
@@ -101,7 +100,7 @@ class Model(object):
         fields = self.get_fields()
 
         res = []
-        for name,field in fields.items():
+        for name, field in fields.items():
             if not field._repr:
                 continue
             try:

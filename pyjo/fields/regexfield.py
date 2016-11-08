@@ -9,7 +9,9 @@ class RegexField(Field):
         """
         :rtype: str
         """
+
         def validator(x):
             if not bool(re.match(regex, x)):
                 raise ValidationError('value did not match regex'.format())
+
         super(RegexField, self).__init__(type=str, validator=validator, **kwargs)

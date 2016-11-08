@@ -5,16 +5,17 @@ from pyjo.exceptions import RequiredFieldError, NotEditableField, FieldTypeError
 
 
 class TestModel(unittest.TestCase):
-
     def test_required_field(self):
         class A(Model):
             foo = Field()
+
         with self.assertRaises(RequiredFieldError):
             a = A()
 
     def test_default_value(self):
         class A(Model):
             foo = Field(default='foo')
+
         a = A()
         self.assertEqual(a.foo, 'foo')
 
@@ -28,6 +29,7 @@ class TestModel(unittest.TestCase):
     def test_type_empty_default(self):
         class A(Model):
             foo = Field(type=str, default=None)
+
         a = A()
         a.foo = 'hello'
         self.assertEqual(a.foo, 'hello')
@@ -35,6 +37,7 @@ class TestModel(unittest.TestCase):
     def test_editable_field(self):
         class A(Model):
             foo = Field(default='foo', editable=True)
+
         a = A(foo=123)
         self.assertEqual(a.foo, 123)
         a.foo = 321
@@ -53,12 +56,14 @@ class TestModel(unittest.TestCase):
     def test_invalid_type_on_init(self):
         class A(Model):
             foo = Field(type=str)
+
         with self.assertRaises(FieldTypeError):
             a = A(foo=1)
 
     def test_invalid_type_on_set(self):
         class A(Model):
             foo = Field(type=str)
+
         a = A(foo='foo')
         self.assertEqual(a.foo, 'foo')
         with self.assertRaises(FieldTypeError):
@@ -67,6 +72,7 @@ class TestModel(unittest.TestCase):
     def test_validator(self):
         class A(Model):
             foo = Field(type=str, validator=lambda x: x.startswith('#'))
+
         with self.assertRaises(FieldTypeError):
             a = A(foo=1)
         with self.assertRaises(ValidationError):
@@ -78,14 +84,16 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(type=str)
             bar = Field(type=int)
+
         a = A(foo='hello', bar=123)
         json = a.to_pyjson()
-        self.assertEqual(json , {'foo': 'hello', 'bar': 123})
+        self.assertEqual(json, {'foo': 'hello', 'bar': 123})
 
     def test_json_deserialization(self):
         class A(Model):
             foo = Field(type=str)
             bar = Field()
+
         a = A.from_pyjson({'foo': 'hello', 'bar': 123})
         self.assertEqual(a.foo, 'hello')
         self.assertEqual(a.bar, 123)
@@ -94,6 +102,7 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(type=str)
             bar = Field()
+
         with self.assertRaises(RequiredFieldError):
             a = A.from_pyjson({'bar': 123})
 
@@ -126,8 +135,10 @@ class TestModel(unittest.TestCase):
     def test_multiple_nested_models(self):
         class A(Model):
             fA = Field(type=str)
+
         class B(Model):
             fB = Field(type=A)
+
         class C(Model):
             fC = Field(type=B)
 
@@ -141,7 +152,6 @@ class TestModel(unittest.TestCase):
             c = C(fC=B(fB=A(fA=1)))
 
     def test_discard_non_fields(self):
-
         class A(Model):
             foo = Field(type=str)
 
@@ -163,5 +173,7 @@ class TestModel(unittest.TestCase):
             foo = Field(type=str, repr=True)
 
         self.assertEquals(str(A(foo='bar')), '<A(foo=bar)>')
+
+
 if __name__ == '__main__':
     unittest.main()
