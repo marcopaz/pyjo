@@ -36,15 +36,13 @@ class User(Model):
     address = Field(type=Address)
 ```
 
-By default any field is considered required and its presence will be checked during initialization.
+By default any field is considered required and its presence will be checked during initialization. To modify this behavior, pass a `default` argument to the `Field` constructor.
 
 ```python
 u = User(name='john', age=18)
 # ...
 # pyjo.exceptions.RequiredField: Field 'address' is required
 ```
-
-To modify this behavior, pass a `default` argument to the `Field` constructor.
 
 ```python
 User(name='john', age=18, address=Address(city='NYC'))
