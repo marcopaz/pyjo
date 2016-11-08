@@ -21,6 +21,13 @@ class RegexFieldTest(unittest.TestCase):
         with self.assertRaises(ValidationError):
             a.foo = 'bar1'
 
+    def test_unicode(self):
+
+        class A(Model):
+            foo = RegexField('foo[0-9]')
+
+        a = A(foo=u'foo1')
+        self.assertEquals(a.foo, u'foo1')
 
 if __name__ == '__main__':
     unittest.main()

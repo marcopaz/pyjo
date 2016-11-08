@@ -12,6 +12,11 @@ class RegexField(Field):
 
         def validator(x):
             if not bool(re.match(regex, x)):
-                raise ValidationError('value did not match regex'.format())
+                raise ValidationError('value does not match regex'.format())
 
-        super(RegexField, self).__init__(type=str, validator=validator, **kwargs)
+        try:
+            basestr_t = basestring
+        except NameError:
+            basestr_t = str
+
+        super(RegexField, self).__init__(type=basestr_t, validator=validator, **kwargs)
