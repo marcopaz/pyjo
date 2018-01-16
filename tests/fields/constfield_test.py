@@ -13,7 +13,7 @@ class ConstFieldTest(unittest.TestCase):
 
         a = A()
         self.assertEqual(a.foo, 'hello')
-        self.assertEqual(a.to_pyjson()['foo'], 'hello')
+        self.assertEqual(a.to_dict()['foo'], 'hello')
 
         with self.assertRaises(NotEditableField):
             a.foo = 'olleh'

@@ -17,12 +17,12 @@ class DatetimeField(Field):
         """
         super(DatetimeField, self).__init__(type=datetime, **kwargs)
 
-    def from_pyjson(self, value):
+    def from_dict(self, value):
         if value is None:
             return value
         return datetime.utcfromtimestamp(int(value))
 
-    def to_pyjson(self, value):
+    def to_dict(self, value):
         if value is None:
             return value
         return dt_to_timestamp(value)

@@ -10,22 +10,22 @@ class ListField(Field):
         super(ListField, self).__init__(type=list, **kwargs)
         self._subtype = subtype or object
 
-    def to_pyjson(self, value):
-        if self._to_pyjson is not None:
-            return self._to_pyjson(value)
+    def to_dict(self, value):
+        if self._to_dict is not None:
+            return self._to_dict(value)
         res = []
         for x in value:
-            if hasattr(x, 'to_pyjson'):
-                x = x.to_pyjson()
+            if hasattr(x, 'to_dict'):
+                x = x.to_dict()
             res.append(x)
         return res
 
-    def from_pyjson(self, value):
-        if self._from_pyjson is not None:
-            return self._from_pyjson(value)
+    def from_dict(self, value):
+        if self._from_dict is not None:
+            return self._from_dict(value)
         res = []
         for x in value:
-            if hasattr(self._subtype, 'from_pyjson'):
-                x = self._subtype.from_pyjson(x)
+            if hasattr(self._subtype, 'from_dict'):
+                x = self._subtype.from_dict(x)
             res.append(x)
         return res

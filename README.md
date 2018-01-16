@@ -63,7 +63,7 @@ u.address.city = 1
 # pyjo.exceptions.InvalidType: The value of the field 'city' is not of type str, given 1
 ```
 
-In order to serialize a model you need to call `to_json` (to obtain a JSON string) or `to_pyjson` (to obtain a JSON-serializable python object), depending on the format you want.
+In order to serialize a model you need to call `to_json` (to obtain a JSON string) or `to_dict` (to obtain a JSON-serializable python object), depending on the format you want.
 
 ```python
 u = User(name='john', age=18, address=Address(city='NYC'))
@@ -81,7 +81,7 @@ print(u.to_json(indent=4))
 # }
 ```
 
-To create a model starting from its JSON representation or python JSON-serializable dictionary, use `from_json` and `from_pyjson`:
+To create a model starting from its JSON representation or python dictionary, use `from_json` and `from_dict`:
 
 ```python
 uu = User.from_json("""
@@ -118,13 +118,13 @@ The `Field` constructor has several _optional_ arguments:
 * `default` specifies the default value for the field. When specified (even if specified with value `None`) the field is considered optional and won't raise an exception if not present during initialization
 * `repr` boolean flag to indicate if the field/value should be shown in the Python representation of the object, when printed
 * `editable` boolean flag that indicates if the field is editable after initialization (through assignment) or not. Default is `True`
-* `to_pyjson`, `from_pyjson` (functions) to add ad-hoc pyjson serialization/deserialization for the field
+* `to_dict`, `from_dict` (functions) to add ad-hoc serialization/deserialization for the field
 
 
 ### Model
 
-* `to_pyjson()`, `from_pyjson()` serialize/deserialize to/from JSON-serializable python objects 
-* `to_json()`, `from_json()` shortcuts for `json.dumps(model.to_pyjson())` and `model.from_pyjson(json.loads(s))`
+* `to_dict()`, `from_dict()` serialize/deserialize to/from python dictionaries
+* `to_json()`, `from_json()` shortcuts for `json.dumps(model.to_dict())` and `model.from_dict(json.loads(s))`
 
 
 ## Field subclasses

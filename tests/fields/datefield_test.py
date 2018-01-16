@@ -21,7 +21,7 @@ class DatetimeFieldTest(unittest.TestCase):
         with self.assertRaises(FieldTypeError):
             a.date = 'hello'
 
-        pj = a.to_pyjson()
+        pj = a.to_dict()
         self.assertEqual(pj['date'], time)
         aa = A.from_json(a.to_json())
         self.assertEqual(aa.date, dt)

@@ -7,7 +7,7 @@ from pyjo.exceptions import RequiredFieldError, NotEditableField, FieldTypeError
 class TestModel(unittest.TestCase):
     def test_required_field(self):
         class A(Model):
-            foo = Field()
+            foo = Field(required=True)
 
         with self.assertRaises(RequiredFieldError):
             a = A()
@@ -28,7 +28,7 @@ class TestModel(unittest.TestCase):
 
     def test_type_empty_default(self):
         class A(Model):
-            foo = Field(type=str, default=None)
+            foo = Field(type=str, allow_none=True, default=None)
 
         a = A()
         a.foo = 'hello'
@@ -86,7 +86,7 @@ class TestModel(unittest.TestCase):
             bar = Field(type=int)
 
         a = A(foo='hello', bar=123)
-        json = a.to_pyjson()
+        json = a.to_dict()
         self.assertEqual(json, {'foo': 'hello', 'bar': 123})
 
     def test_json_deserialization(self):
@@ -94,21 +94,21 @@ class TestModel(unittest.TestCase):
             foo = Field(type=str)
             bar = Field()
 
-        a = A.from_pyjson({'foo': 'hello', 'bar': 123})
+        a = A.from_dict({'foo': 'hello', 'bar': 123})
         self.assertEqual(a.foo, 'hello')
         self.assertEqual(a.bar, 123)
 
     def test_json_deser_without_required_fields(self):
         class A(Model):
-            foo = Field(type=str)
-            bar = Field()
+            foo = Field(type=str, required=True)
+            bar = Field(required=True)
 
         with self.assertRaises(RequiredFieldError):
-            a = A.from_pyjson({'bar': 123})
+            a = A.from_dict({'bar': 123})
 
     def test_json_with_submodel(self):
         class A(Model):
-            foo = Field(type=str)
+            foo = Field(type=str, required=True)
             bar = Field(type=int, default=0)
 
         class B(Model):
@@ -118,18 +118,18 @@ class TestModel(unittest.TestCase):
         b = B(submodel=a)
 
         # serialization / deserialization of the submodel
-        json = b.to_pyjson()
+        json = b.to_dict()
         self.assertEqual(json, {'submodel': {'bar': 123, 'foo': 'foo'}})
-        c = B.from_pyjson(json)
+        c = B.from_dict(json)
         self.assertEqual(c.submodel.foo, 'foo')
         self.assertEqual(c.submodel.bar, 123)
 
         # missing required fields of the submodel
         with self.assertRaises(RequiredFieldError):
-            B.from_pyjson({'submodel': {'bar': 123}})
+            B.from_dict({'submodel': {'bar': 123}})
 
         # default values of the submodel's fields
-        d = B.from_pyjson({'submodel': {'foo': 'foo'}})
+        d = B.from_dict({'submodel': {'foo': 'foo'}})
         self.assertEqual(d.submodel.bar, 0)
 
     def test_multiple_nested_models(self):
@@ -143,9 +143,9 @@ class TestModel(unittest.TestCase):
             fC = Field(type=B)
 
         c = C(fC=B(fB=A(fA='yo')))
-        pj = c.to_pyjson()
+        pj = c.to_dict()
         self.assertEqual(pj, {'fC': {'fB': {'fA': 'yo'}}})
-        c = C.from_pyjson(pj)
+        c = C.from_dict(pj)
         self.assertEqual(c.fC.fB.fA, 'yo')
 
         with self.assertRaises(FieldTypeError):
@@ -155,11 +155,11 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(type=str)
 
-        a = A.from_pyjson({'foo': 'hello', 'foo2': 'hello2'}, discard_non_fields=False)
+        a = A.from_dict({'foo': 'hello', 'foo2': 'hello2'}, discard_non_fields=False)
         self.assertEqual(a.foo, 'hello')
         self.assertEqual(a.foo2, 'hello2')
 
-        a = A.from_pyjson({'foo': 'hello', 'foo2': 'hello2'}, discard_non_fields=True)
+        a = A.from_dict({'foo': 'hello', 'foo2': 'hello2'}, discard_non_fields=True)
         self.assertEqual(a.foo, 'hello')
         self.assertEqual(hasattr(a, 'foo2'), False)
 

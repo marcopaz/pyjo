@@ -19,8 +19,8 @@ class ListFieldTest(unittest.TestCase):
         self.assertEqual(a.foo[1].n, 2)
         self.assertEqual(a.foo[2].n, 3)
 
-        self.assertEqual(a.to_pyjson(), {'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
-        aa = A.from_pyjson({'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
+        self.assertEqual(a.to_dict(), {'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
+        aa = A.from_dict({'foo': [{'n': 1}, {'n': 2}, {'n': 3}]})
         self.assertEqual(len(aa.foo), 3)
         self.assertEqual(aa.foo[1].n, 2)
 
@@ -35,8 +35,8 @@ class ListFieldTest(unittest.TestCase):
         self.assertEqual(a.foo[1], 'foo2')
         self.assertEqual(a.foo[2], 'foo3')
 
-        self.assertEqual(a.to_pyjson(), {'foo': ['foo1', 'foo2', 'foo3']})
-        aa = A.from_pyjson({'foo': ['foo1', 'foo2', 'foo3']})
+        self.assertEqual(a.to_dict(), {'foo': ['foo1', 'foo2', 'foo3']})
+        aa = A.from_dict({'foo': ['foo1', 'foo2', 'foo3']})
         self.assertEqual(len(aa.foo), 3)
         self.assertEqual(aa.foo[1], 'foo2')
 

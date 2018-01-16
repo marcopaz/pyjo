@@ -17,7 +17,7 @@ class EnumFieldTest(unittest.TestCase):
             foo = EnumField(MyEnum)
 
         a = A(foo=MyEnum.foo1)
-        self.assertEqual(a.to_pyjson()['foo'], 'foo1')
+        self.assertEqual(a.to_dict()['foo'], 'foo1')
 
         with self.assertRaises(FieldTypeError):
             a.foo = 'foo2'

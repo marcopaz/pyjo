@@ -9,14 +9,14 @@ class RangeFieldTest(unittest.TestCase):
     def test_range_field(self):
 
         class A(Model):
-            foo = RangeField(min=18, max=80)
+            foo = RangeField(min=18, max=80, required=True)
 
         with self.assertRaises(RequiredFieldError):
             A()
 
         a = A(foo=20)
         self.assertEqual(a.foo, 20)
-        self.assertEqual(a.to_pyjson()['foo'], 20)
+        self.assertEqual(a.to_dict()['foo'], 20)
 
         with self.assertRaises(ValidationError):
             a.foo = 17
