@@ -6,12 +6,12 @@ orig_type = type
 
 
 class Field(object):
+    name = None
+
     _type = None
     _repr = False  # show value in string representation of the python object
-    _editable = True
-    _attr_name = None  # name of the attribute for which the field is used
 
-    def __init__(self, default=no_default, required=False, editable=True, type=None, allow_none=False,
+    def __init__(self, default=no_default, required=False, type=None, allow_none=False,
                  validator=None, to_dict=None, from_dict=None, repr=False):
         """
         :type default: T
@@ -37,12 +37,28 @@ class Field(object):
         self._type = type
         self._validator = validator
         self._repr = repr
-        self._editable = editable
         self._to_dict = to_dict
         self._from_dict = from_dict
         self._default = default
         self._required = required
         self._allow_none = allow_none
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            # Document class being used rather than a document object
+            return self
+
+        value = instance._data.get(self.name)
+        if value is no_value:
+            return None
+        return value
+
+    def __set__(self, instance, value):
+        self.validate(value, instance=instance)
+        instance._data[self.name] = value
+
+    def __delete__(self, instance):
+        instance._data[self.name] = no_value  # NOTE: we may want to keep the default value in this case, TBD
 
     @property
     def default(self):
@@ -55,26 +71,33 @@ class Field(object):
     def has_default(self):
         return self._default != no_default
 
-    def check_value(self, value):
+    def has_value(self, instance):
+        try:
+            value = instance._data[self.name]
+        except KeyError:
+            value = no_value
+        return value is not no_value
+
+    def validate(self, value, instance=None):
         if not self.required and value is no_value:
             return
         if self._allow_none and value is None:
             return
         if self._type is not None and not isinstance(value, self._type):
             raise FieldTypeError(
-                '{} value is not of type {}, given {}'.format(self._attr_name, self._type.__name__, value))
+                '{} value is not of type {}, given {}'.format(self.name, self._type.__name__, value))
         if self._validator:
             try:
                 res = self._validator(value)
             except ValidationError as e:
                 if e.field_name is None:
-                    raise ValidationError('{} did not pass the validation: {}'.format(self._attr_name, e.message),
-                                          field_name=self._attr_name)
+                    raise ValidationError('{} did not pass the validation: {}'.format(self.name, e.message),
+                                          field_name=self.name)
                 else:
                     raise
 
             if res is False:
-                raise ValidationError('{} did not pass the validation'.format(self._attr_name))
+                raise ValidationError('{} did not pass the validation'.format(self.name))
         return
 
     def to_dict(self, value):
@@ -93,4 +116,4 @@ class Field(object):
 
     def __repr__(self):
         return '<{}(name={})>'.format(
-            self.__class__.__name__, self._attr_name)
+            self.__class__.__name__, self.name)

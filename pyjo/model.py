@@ -3,19 +3,77 @@ import json
 from pyjo.exceptions import RequiredFieldError, NotEditableField
 from pyjo.fields.field import Field, no_value, no_default
 
-__all__ = ["Model"]
+from six import with_metaclass, iteritems
+
+__all__ = ["ModelMetaclass", "Model"]
 
 
-class Model(object):
+class ModelMetaclass(type):
+
+    def __new__(cls, name, bases, attrs):
+        super_new = super(ModelMetaclass, cls).__new__
+
+        # If a base class just call super
+        metaclass = attrs.get('my_metaclass')
+        if metaclass and issubclass(metaclass, ModelMetaclass):
+            return super_new(cls, name, bases, attrs)
+
+        # Build _fields and assign name
+
+        # Merge all fields from subclasses
+        _fields = {}
+        flattened_bases = cls._get_bases(bases)
+        for base in flattened_bases[::-1]:
+            if hasattr(base, '_fields'):
+                _fields.update(base._fields)
+            fields = {}
+            for attr_name, attr_value in iteritems(base.__dict__):
+                if not isinstance(attr_value, Field):
+                    continue
+                attr_value.name = attr_name
+                fields[attr_name] = attr_value
+            _fields.update(fields)
+
+        # Discover any model fields
+        for attr_name, attr_value in iteritems(attrs):
+            if not isinstance(attr_value, Field):
+                continue
+            attr_value.name = attr_name
+            _fields[attr_name] = attr_value
+
+        attrs['_fields'] = _fields
+
+        return super_new(cls, name, bases, attrs)
+
+    @classmethod
+    def _get_bases(cls, bases):
+        bases = cls.__get_bases(bases)
+        unique_bases = list(set(bases))
+        return unique_bases
+
+    @classmethod
+    def __get_bases(cls, bases):
+        for base in bases:
+            if base is object:
+                continue
+            yield base
+            for child_base in cls.__get_bases(base.__bases__):
+                yield child_base
+
+
+class Model(with_metaclass(ModelMetaclass, object)):
+
+    my_metaclass = ModelMetaclass
+
     def __init__(self, **kwargs):
-        kwargs = self._set_defaults(**kwargs)
-        self._check_required_attributes(**kwargs)
+        self._data = {}
+        self._set_defaults(kwargs)
+        self._check_required_attributes(kwargs)
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
 
-    def _set_defaults(self, **kwargs):
-        fields = self._get_fields()
-        for name, field in fields.items():
+    def _set_defaults(self, kwargs):
+        for name, field in iteritems(self._fields):
             try:
                 value = kwargs[name]
             except KeyError:
@@ -26,33 +84,15 @@ class Model(object):
                 else:
                     value = field.default
             kwargs[name] = value
-        return kwargs
 
-    def _check_required_attributes(self, **kwargs):
-        fields = self._get_fields()
-        for name, field in fields.items():
+    def _check_required_attributes(self, kwargs):
+        for name, field in iteritems(self._fields):
             try:
                 value = kwargs.get(name)
             except KeyError:
                 value = no_value
             if field.required and value is no_value:
                 raise RequiredFieldError('Field \'{}\' is required'.format(name))
-
-    @classmethod
-    def _get_fields(cls):
-        fields = {}
-        # handle parent classes
-        for base in cls.__bases__:
-            if issubclass(base, Model):
-                fields.update(base._get_fields())
-        for attr_name in dir(cls):
-            try:
-                val = object.__getattribute__(cls, attr_name)
-            except AttributeError:
-                continue
-            if isinstance(val, Field):
-                fields[attr_name] = val
-        return fields
 
     @staticmethod
     def _field_attr_value(key):
@@ -61,68 +101,50 @@ class Model(object):
     def has_value(self, key):
         return hasattr(self, self._field_attr_value(key)) and getattr(self, self._field_attr_value(key)) is not no_value
 
-    def __setattr__(self, key, value):
-        attr = None
-        try:
-            attr = object.__getattribute__(self, key)
-        except AttributeError:
-            pass
-        if attr is not None and isinstance(attr, Field):
-            attr._attr_name = '{}.{}'.format(self.__class__.__name__, key)
-            if not attr._editable and hasattr(self, self._field_attr_value(key)):
-                raise NotEditableField(key)
-            attr.check_value(value)
-            return object.__setattr__(self, self._field_attr_value(key), value)
-        object.__setattr__(self, key, value)
-
-    def __getattribute__(self, attr):
-        value = object.__getattribute__(self, attr)
-        if isinstance(value, Field):
-            value = object.__getattribute__(self, self._field_attr_value(attr))
-        return value
-
     @classmethod
-    def from_dict(cls, value, discard_non_fields=True):
-        if not isinstance(value, dict):
+    def from_dict(cls, data, discard_non_fields=True):
+        if not isinstance(data, dict):
             raise TypeError('must be a dict')
-        fields = cls._get_fields()
         field_values = {}
-        for name, field in fields.items():
-            if value.get(name) is not None:
-                field_values[name] = field.from_dict(value[name])
-        if discard_non_fields:
-            value = field_values
-        else:
-            value.update(field_values)
-        return cls(**value)
+        for name, field in iteritems(cls._fields):
+            try:
+                value = data[name]
+            except KeyError:
+                value = no_value
 
-    def update_from_dict(self, value, discard_non_fields=True):
-        if not isinstance(value, dict):
+            if value is not no_value:
+                field_values[name] = field.from_dict(value)
+        if discard_non_fields:
+            data = field_values
+        else:
+            data.update(field_values)
+        return cls(**data)
+
+    def update_from_dict(self, data, discard_non_fields=True):
+        if not isinstance(data, dict):
             raise TypeError('must be a dict')
-        fields = self._get_fields()
-        field_values = {}
-        for name, field in fields.items():
-            if value.get(name) is not None:
-                field_values[name] = field.from_dict(value[name])
-        if discard_non_fields:
-            value = field_values
-        else:
-            value.update(field_values)
 
-        for k,v in value.items():
+        field_values = {}
+        for name, field in iteritems(self._fields):
+            try:
+                value = data[name]
+            except KeyError:
+                value = no_value
+
+            field_values[name] = field.from_dict(value)
+        if discard_non_fields:
+            data = field_values
+        else:
+            data.update(field_values)
+
+        for k,v in iteritems(data):
             setattr(self, k, v)
 
-        return self
-
     def to_dict(self):
-        fields = self._get_fields()
         res = {}
-        for name, field in fields.items():
-            try:
+        for name, field in iteritems(self._fields):
+            if field.has_value(self):
                 value = getattr(self, name)
-            except AttributeError:
-                value = None
-            if value is not no_value:
                 res[name] = field.to_dict(value)
         return res
 
@@ -135,10 +157,8 @@ class Model(object):
         return json.dumps(self.to_dict(), indent=indent)
 
     def __repr__(self):
-        fields = self._get_fields()
-
         res = []
-        for name, field in fields.items():
+        for name, field in iteritems(self._fields):
             if not field._repr:
                 continue
             try:

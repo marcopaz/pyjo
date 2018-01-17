@@ -34,25 +34,6 @@ class TestModel(unittest.TestCase):
         a.foo = 'hello'
         self.assertEqual(a.foo, 'hello')
 
-    def test_editable_field(self):
-        class A(Model):
-            foo = Field(default='foo', editable=True)
-
-        a = A(foo=123)
-        self.assertEqual(a.foo, 123)
-        a.foo = 321
-        self.assertEqual(a.foo, 321)
-
-    def test_not_editable_field(self):
-        class A(Model):
-            foo = Field(editable=False)
-
-        a = A(foo=123)
-        self.assertEqual(a.foo, 123)
-
-        with self.assertRaises(NotEditableField):
-            a.foo = 321
-
     def test_invalid_type_on_init(self):
         class A(Model):
             foo = Field(type=str)
@@ -186,6 +167,37 @@ class TestModel(unittest.TestCase):
 
         self.assertEqual(A().foo, 1)
         self.assertEqual(A().foo, 2)
+
+    def test_no_serialization_if_no_value(self):
+
+        class A(Model):
+            foo = Field(type=int)
+            bar = Field(type=int, default=1)
+
+        a = A()
+        self.assertEqual(a.to_dict(), {'bar': 1})
+
+        a.foo = 10
+        self.assertEqual(a.to_dict(), {'foo': 10, 'bar': 1})
+
+        del a.foo
+        del a.bar
+        self.assertEqual(a.to_dict(), {})
+
+    def test_del_property(self):
+
+        class A(Model):
+            foo = Field(type=int)
+
+        a = A()
+        a.foo = 5
+        self.assertEqual(a.foo, 5)
+        self.assertEqual(a.to_dict()['foo'], 5)
+
+        del a.foo
+        self.assertEqual(a.foo, None)
+        with self.assertRaises(KeyError):
+            a.to_dict()['foo']
 
 
 if __name__ == '__main__':

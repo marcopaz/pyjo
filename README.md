@@ -117,7 +117,6 @@ The `Field` constructor has several _optional_ arguments:
 * `type` specifies the type of the field. If specified, the type will be checked during initialization and assignment
 * `default` specifies the default value for the field. When specified (even if specified with value `None`) the field is considered optional and won't raise an exception if not present during initialization
 * `repr` boolean flag to indicate if the field/value should be shown in the Python representation of the object, when printed
-* `editable` boolean flag that indicates if the field is editable after initialization (through assignment) or not. Default is `True`
 * `to_dict`, `from_dict` (functions) to add ad-hoc serialization/deserialization for the field
 
 
@@ -131,7 +130,6 @@ The `Field` constructor has several _optional_ arguments:
 
 You can create subclasses of `Field` to handle specific types of objects. Several of them are already integrated in pyjo and more are coming (feel free to create a PR to add more):
 
-* `ConstField` for constant fields (shortcut for `Field` with `editable=False`)
 * `ListField` for fields containing a list of elements
 * `RegexField` for fields containing a string that matches a given regex
 * `RangeField` for fields containing a int with optional minimum/maximum value
