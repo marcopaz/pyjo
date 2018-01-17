@@ -20,5 +20,6 @@ setup(
     package_data={'': ['LICENSE']},
     test_suite="tests",
     install_requires=[
+        'six',
     ],
 )
