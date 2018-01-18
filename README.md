@@ -25,14 +25,14 @@ class Gender(Enum):
 
 class Address(Model):
     city = Field(type=str)
-    postal_code = Field(type=int, default=0)
-    address = Field(default=None)
+    postal_code = Field(type=int)
+    address = Field()
 
 class User(Model):
     name = Field(type=str, repr=True, required=True)
     age = RangeField(min=18, max=120)
     #  equivalent to: Field(type=int, validator=lambda x: 18 <= x <= 120)
-    gender = EnumField(enum=Gender, default=None)
+    gender = EnumField(enum=Gender)
     address = Field(type=Address)
 ```
 
