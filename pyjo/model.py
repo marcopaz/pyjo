@@ -94,13 +94,6 @@ class Model(with_metaclass(ModelMetaclass, object)):
             if field.required and value is no_value:
                 raise RequiredFieldError('Field \'{}\' is required'.format(name))
 
-    @staticmethod
-    def _field_attr_value(key):
-        return '__field_{}'.format(key)
-
-    def has_value(self, key):
-        return hasattr(self, self._field_attr_value(key)) and getattr(self, self._field_attr_value(key)) is not no_value
-
     @classmethod
     def from_dict(cls, data, discard_non_fields=True):
         if not isinstance(data, dict):
