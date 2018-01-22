@@ -1,7 +1,5 @@
 from pyjo.exceptions import FieldTypeError, ValidationError
 
-no_default = object()
-no_value = object()
 orig_type = type
 
 
@@ -11,8 +9,8 @@ class Field(object):
     _type = None
     _repr = False  # show value in string representation of the python object
 
-    def __init__(self, default=no_default, required=False, type=None, allow_none=False,
-                 validator=None, to_dict=None, from_dict=None, repr=False):
+    def __init__(self, default=None, required=False, type=None, validator=None, to_dict=None, from_dict=None,
+                 repr=False):
         """
         :type default: T
         :type type: U
@@ -41,7 +39,6 @@ class Field(object):
         self._from_dict = from_dict
         self._default = default
         self._required = required
-        self._allow_none = allow_none
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -49,8 +46,6 @@ class Field(object):
             return self
 
         value = instance._data.get(self.name)
-        if value is no_value:
-            return None
         return value
 
     def __set__(self, instance, value):
@@ -58,7 +53,11 @@ class Field(object):
         instance._data[self.name] = value
 
     def __delete__(self, instance):
-        instance._data[self.name] = no_value  # NOTE: we may want to keep the default value in this case, TBD
+        # NOTE: we may want to keep the default value in this case, TBD
+        try:
+            del instance._data[self.name]
+        except KeyError:
+            pass
 
     @property
     def default(self):
@@ -66,22 +65,16 @@ class Field(object):
 
     @property
     def required(self):
-        return self._required and self._default == no_default
+        return self._required
 
     def has_default(self):
-        return self._default != no_default
+        return self._default is not None
 
     def has_value(self, instance):
-        try:
-            value = instance._data[self.name]
-        except KeyError:
-            value = no_value
-        return value is not no_value
+        return instance._data.get(self.name) is not None
 
     def validate(self, value, instance=None):
-        if not self.required and value is no_value:
-            return
-        if self._allow_none and value is None:
+        if not self.required and value is None:
             return
         if self._type is not None and not isinstance(value, self._type):
             raise FieldTypeError(

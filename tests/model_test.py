@@ -12,6 +12,21 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(RequiredFieldError):
             a = A()
 
+    def test_required_with_empty_default(self):
+        class A(Model):
+            foo = Field(type=str, required=True, default=None)
+
+        with self.assertRaises(RequiredFieldError):
+            a = A()
+
+    def test_required_with_nonempty_default(self):
+        class A(Model):
+            foo = Field(type=str, required=True, default='hello')
+
+        a = A()
+        self.assertEquals(a.foo, 'hello')
+
+
     def test_default_value(self):
         class A(Model):
             foo = Field(default='foo')
@@ -25,14 +40,6 @@ class TestModel(unittest.TestCase):
 
         with self.assertRaises(FieldTypeError):
             a = A()
-
-    def test_type_empty_default(self):
-        class A(Model):
-            foo = Field(type=str, allow_none=True, default=None)
-
-        a = A()
-        a.foo = 'hello'
-        self.assertEqual(a.foo, 'hello')
 
     def test_invalid_type_on_init(self):
         class A(Model):
@@ -156,11 +163,11 @@ class TestModel(unittest.TestCase):
         self.assertEquals(str(A(foo='bar')), '<A(foo=bar)>')
 
     def test_function_default(self):
-        self.x = 0
+        data = {'x': 0}
 
         def incr_x():
-            self.x += 1
-            return self.x
+            data['x'] += 1
+            return data['x']
 
         class A(Model):
             foo = Field(type=int, default=incr_x)

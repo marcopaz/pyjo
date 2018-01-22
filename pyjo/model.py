@@ -1,7 +1,7 @@
 import json
 
 from pyjo.exceptions import RequiredFieldError, NotEditableField
-from pyjo.fields.field import Field, no_value, no_default
+from pyjo.fields.field import Field
 
 from six import with_metaclass, iteritems
 
@@ -74,11 +74,8 @@ class Model(with_metaclass(ModelMetaclass, object)):
 
     def _set_defaults(self, kwargs):
         for name, field in iteritems(self._fields):
-            try:
-                value = kwargs[name]
-            except KeyError:
-                value = no_value
-            if value is no_value and field.default != no_default:
+            value = kwargs.get(name)
+            if value is None and field.default is not None:
                 if callable(field.default):
                     value = field.default()
                 else:
@@ -87,11 +84,8 @@ class Model(with_metaclass(ModelMetaclass, object)):
 
     def _check_required_attributes(self, kwargs):
         for name, field in iteritems(self._fields):
-            try:
-                value = kwargs.get(name)
-            except KeyError:
-                value = no_value
-            if field.required and value is no_value:
+            value = kwargs.get(name)
+            if field.required and value is None:
                 raise RequiredFieldError('Field \'{}\' is required'.format(name))
 
     @classmethod
@@ -100,12 +94,8 @@ class Model(with_metaclass(ModelMetaclass, object)):
             raise TypeError('must be a dict')
         field_values = {}
         for name, field in iteritems(cls._fields):
-            try:
-                value = data[name]
-            except KeyError:
-                value = no_value
-
-            if value is not no_value:
+            value = data.get(name)
+            if value is not None:
                 field_values[name] = field.from_dict(value)
         if discard_non_fields:
             data = field_values
@@ -119,11 +109,7 @@ class Model(with_metaclass(ModelMetaclass, object)):
 
         field_values = {}
         for name, field in iteritems(self._fields):
-            try:
-                value = data[name]
-            except KeyError:
-                value = no_value
-
+            value = data.get(name)
             field_values[name] = field.from_dict(value)
         if discard_non_fields:
             data = field_values

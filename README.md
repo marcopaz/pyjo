@@ -109,8 +109,7 @@ The `Field` object has several _optional_ arguments:
 
 * `type` specifies the type of the field. If specified, the type will be checked during initialization and assignment
 * `default` specifies the default value for the field. The value of a default can be a function and it will be computed and assigned during the initialization of the object
-* `required` boolean flag to indicate if the field must be specified (`False` by default)
-* `allow_none` specify if the field can be set to `None` or not (`False` by default)
+* `required` boolean flag to indicate if the field must be specified and can't be `None` (`False` by default)
 * `repr` boolean flag to indicate if the field/value should be shown in the Python representation of the object, when printed (`False` by default)
 * `to_dict`, `from_dict` (functions) to add ad-hoc serialization/deserialization for the field
 
