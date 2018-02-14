@@ -11,7 +11,7 @@ class ListFieldTest(unittest.TestCase):
             n = Field(type=int)
 
         class A(Model):
-            foo = ListField(B)
+            foo = ListField(Field(type=B))
 
         a = A(foo=[B(n=1), B(n=2), B(n=3)])
         self.assertEqual(len(a.foo), 3)
@@ -27,7 +27,7 @@ class ListFieldTest(unittest.TestCase):
     def test_list_serialization(self):
 
         class A(Model):
-            foo = ListField(str)
+            foo = ListField(Field(type=str))
 
         a = A(foo=['foo1', 'foo2', 'foo3'])
         self.assertEqual(len(a.foo), 3)
@@ -54,7 +54,7 @@ class ListFieldTest(unittest.TestCase):
                     raise ValidationError('element at index {} does not match the regex'.format(i))
 
         class A(Model):
-            foo = ListField(str, validator=validator)
+            foo = ListField(Field(type=str), validator=validator)
 
         a = A(foo=['foo1', 'foo2', 'foo3'])
 
