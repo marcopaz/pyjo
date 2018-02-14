@@ -10,16 +10,6 @@ class MapField(Field):
         super(MapField, self).__init__(type=dict, **kwargs)
         self.inner_field = inner_field
 
-    def to_dict(self, value):
-        if value is None:
-            return value
-
-        res = {}
-        for k, v in value.items():
-            res[k] = self.inner_field.to_dict(v)
-
-        return res
-
     def validate(self, value, **kwargs):
         super(MapField, self).validate(value, **kwargs)
         if not value:
@@ -34,7 +24,15 @@ class MapField(Field):
 
         res = {}
         for k, v in value.items():
-            if self.inner_field and hasattr(self.inner_field, 'from_dict'):
-                res[k] = self.inner_field.from_dict(v)
+            res[k] = self.inner_field.from_dict(v)
         return res
 
+    def to_dict(self, value):
+        if value is None:
+            return value
+
+        res = {}
+        for k, v in value.items():
+            res[k] = self.inner_field.to_dict(v)
+
+        return res
