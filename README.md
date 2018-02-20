@@ -36,7 +36,7 @@ class User(Model):
     address = Field(type=Address)
 ```
 
-By default any field is considered optional unless specified with `required` attribute. Every  and its presence will be checked during initialization.
+By default any field is considered optional unless specified with `required` attribute. If required, its presence will be checked during initialization.
 
 ```python
 u = User()
