@@ -1,14 +1,20 @@
 language: python
+
 python:
-- '2.7'
-- '3.5'
-script:
-- python setup.py test
-deploy:
-  provider: pypi
-  user: map
-  password:
-    secure: n4oFEXV3w2bdOEY2ZndyDi/ZRjA3w8xgST6veEQ3TjVE8TcbRdtmrO9zjSfZdELrinHBUugaCw+Nuf5Ay72SgyXByBCMVVHUjXxtkMyrRe2sbXJjxI2lbi2NdQEFvkBoRGrndZmwVZB1lR0cvNHze1ycwtAx1gtLxtHF8AmT5R3lqwJ4BUFt7FqUgFeLeq0YSwLx/wTq/32o9cTxddt4yAXIWszswILG4S+nvnxq99LQxSCRM2gcJlagU7jy3fz2dJGDlbQX9MI6UjwTRZEsKz9o82h86EGyH4OWvLSeePqFGClFiAzgRFHNKzKQR03/3zw2tLxXac+NPBpsiiO66bUgFAtg7uTo03LbxKeNyM2niRAyc7iVcG1MvRrL+E0R8R0ORLF9bSETq36JWd5AD++c0WstV17yl7454bgCpcUipxWrM6ZkOlLJz/4uGxIEW+VHMnDbrkmqFX6Xfg2rbnYMjQauq+sGoRPYABFr1G6+U4deqoklNt5PxFNDKwI8hjXtyyjsoSFnTyGzQyee2F07mMPa9yC1nTFdIdfRMO190wd5pAWCuL2dkvr7kKDWNPJR45u3K8/QKKD3RbORvD7zOC1tP3HEhpqPovhkdmdVtYJFbnRHOy8VGWmfTQl2ag7KE7odTln8XlF9yJytW3K8WzT03ds9Xx4yZUXKrrE=
-  on:
-    tags: true
-    branch: master
+  - '2.7'
+  - '3.5'
+
+jobs:
+  include:
+      - stage: test
+        script: python setup.py test
+      - stage: deploy
+        python: '3.5'
+        deploy:
+          provider: pypi
+          user: map
+          password:
+            secure: n4oFEXV3w2bdOEY2ZndyDi/ZRjA3w8xgST6veEQ3TjVE8TcbRdtmrO9zjSfZdELrinHBUugaCw+Nuf5Ay72SgyXByBCMVVHUjXxtkMyrRe2sbXJjxI2lbi2NdQEFvkBoRGrndZmwVZB1lR0cvNHze1ycwtAx1gtLxtHF8AmT5R3lqwJ4BUFt7FqUgFeLeq0YSwLx/wTq/32o9cTxddt4yAXIWszswILG4S+nvnxq99LQxSCRM2gcJlagU7jy3fz2dJGDlbQX9MI6UjwTRZEsKz9o82h86EGyH4OWvLSeePqFGClFiAzgRFHNKzKQR03/3zw2tLxXac+NPBpsiiO66bUgFAtg7uTo03LbxKeNyM2niRAyc7iVcG1MvRrL+E0R8R0ORLF9bSETq36JWd5AD++c0WstV17yl7454bgCpcUipxWrM6ZkOlLJz/4uGxIEW+VHMnDbrkmqFX6Xfg2rbnYMjQauq+sGoRPYABFr1G6+U4deqoklNt5PxFNDKwI8hjXtyyjsoSFnTyGzQyee2F07mMPa9yC1nTFdIdfRMO190wd5pAWCuL2dkvr7kKDWNPJR45u3K8/QKKD3RbORvD7zOC1tP3HEhpqPovhkdmdVtYJFbnRHOy8VGWmfTQl2ag7KE7odTln8XlF9yJytW3K8WzT03ds9Xx4yZUXKrrE=
+          on:
+            tags: true
+            branch: master
