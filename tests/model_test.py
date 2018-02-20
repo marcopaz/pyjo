@@ -206,6 +206,20 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(KeyError):
             a.to_dict()['foo']
 
+    def test_cast(self):
+        class A(Model):
+            foo = Field(type=int, cast=int)
+
+        a = A()
+        a.foo = '5'
+        self.assertEqual(a.foo, 5)
+        self.assertEqual(a.to_dict()['foo'], 5)
+        a.foo = 5
+        self.assertEqual(a.foo, 5)
+        self.assertEqual(a.to_dict()['foo'], 5)
+        a.foo = None
+        self.assertEqual(a.foo, None)
+
 
 if __name__ == '__main__':
     unittest.main()

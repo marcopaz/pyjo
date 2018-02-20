@@ -10,7 +10,7 @@ class Field(object):
     _repr = False  # show value in string representation of the python object
 
     def __init__(self, default=None, required=False, type=None, validator=None, to_dict=None, from_dict=None,
-                 repr=False):
+                 cast=None, repr=False):
         """
         :type default: T
         :type type: U
@@ -23,6 +23,9 @@ class Field(object):
         if validator is not None and not callable(validator):
             raise TypeError('Invalid value for validator. It should be callable')
 
+        if cast is not None and not callable(cast):
+            raise TypeError('Invalid value for cast. It should be callable')
+
         if repr is not None and not isinstance(repr, bool):
             raise TypeError('Invalid value for repr. It should be a bool')
 
@@ -33,6 +36,7 @@ class Field(object):
             raise TypeError('Invalid value for from_dict. It should be callable')
 
         self._type = type
+        self._cast = cast
         self._validator = validator
         self._repr = repr
         self._to_dict = to_dict
@@ -49,6 +53,8 @@ class Field(object):
         return value
 
     def __set__(self, instance, value):
+        if value is not None:
+            value = self.cast(value)
         self.validate(value, instance=instance)
         instance._data[self.name] = value
 
@@ -73,9 +79,15 @@ class Field(object):
     def has_value(self, instance):
         return instance._data.get(self.name) is not None
 
+    def cast(self, value):
+        if self._cast is not None:
+            return self._cast(value)
+        return value
+
     def validate(self, value, instance=None):
         if not self.required and value is None:
             return
+
         if self._type is not None and not isinstance(value, self._type):
             raise FieldTypeError(
                 '{} value is not of type {}, given "{}"'.format(self.name, self._type.__name__, value))
