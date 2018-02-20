@@ -4,7 +4,7 @@ sudo: false
 
 python:
   - '2.7'
-  - '3.5'
+  - '3.6'
 
 install: true
 script: true
@@ -14,7 +14,6 @@ jobs:
       - stage: test
         script: python setup.py test
       - stage: deploy
-        python: '3.5'
         deploy:
           provider: pypi
           user: map
