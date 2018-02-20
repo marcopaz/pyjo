@@ -7,13 +7,12 @@ python:
   - '3.6'
 
 install: true
-script: true
+script: python setup.py test
 
 jobs:
   include:
-      - stage: test
-        script: python setup.py test
       - stage: deploy
+        python: '3.6'
         deploy:
           provider: pypi
           user: map
