@@ -78,7 +78,7 @@ class Field(object):
             return
         if self._type is not None and not isinstance(value, self._type):
             raise FieldTypeError(
-                '{} value is not of type {}, given {}'.format(self.name, self._type.__name__, value))
+                '{} value is not of type {}, given "{}"'.format(self.name, self._type.__name__, value))
         if self._validator:
             try:
                 res = self._validator(value)
