@@ -21,5 +21,6 @@ setup(
     test_suite="tests",
     install_requires=[
         'six',
+        'future',
     ],
 )
