@@ -22,5 +22,6 @@ setup(
     install_requires=[
         'six',
         'future',
+        'enum34',
     ],
 )
