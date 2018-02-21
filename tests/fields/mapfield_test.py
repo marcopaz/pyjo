@@ -104,5 +104,13 @@ class MapFieldTest(unittest.TestCase):
         with self.assertRaises(RequiredFieldError):
             B()
 
+    def test_map_with_inner_cast(self):
+        class B(Model):
+            data = MapField(inner_field=Field(type=int, cast=int), required=True)
+
+        b = B(data={'one': '1'})
+        assert b.data['one'] == 1
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,3 +1,6 @@
+from six import iteritems
+
+from pyjo.exceptions import FieldTypeError
 from pyjo.fields.field import Field
 
 
@@ -9,6 +12,15 @@ class MapField(Field):
         """
         super(MapField, self).__init__(type=dict, **kwargs)
         self.inner_field = inner_field
+
+    def cast(self, value):
+        value = super(MapField, self).cast(value)
+        if not isinstance(value, dict):
+            raise FieldTypeError(
+                '{} value is not of type {}, given "{}"'.format(self.name, self._type.__name__, value),
+                field_name=self.name
+            )
+        return {k: self.inner_field.cast(v) for k, v in iteritems(value)}
 
     def validate(self, value, **kwargs):
         super(MapField, self).validate(value, **kwargs)

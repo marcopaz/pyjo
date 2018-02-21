@@ -68,6 +68,15 @@ class ListFieldTest(unittest.TestCase):
         # with self.assertRaises(FieldTypeError):
         #     a.foo[1] = 1
 
+    def test_list_with_cast(self):
+        class A(Model):
+            foo = ListField(Field(type=int, cast=int), cast=lambda x: x.split(',') if isinstance(x, str) else x)
+
+        a = A(foo="1,2,5")
+        assert a.foo[0] == 1
+        assert a.foo[1] == 2
+        assert a.foo[2] == 5
+
 
 if __name__ == '__main__':
     unittest.main()
