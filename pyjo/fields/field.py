@@ -53,9 +53,7 @@ class Field(object):
         return value
 
     def __set__(self, instance, value):
-        if value is not None:
-            value = self.cast(value)
-        self.validate(value, instance=instance)
+        value = self.cast_and_validate(value, instance=instance)
         instance._data[self.name] = value
 
     def __delete__(self, instance):
@@ -78,6 +76,12 @@ class Field(object):
 
     def has_value(self, instance):
         return instance._data.get(self.name) is not None
+
+    def cast_and_validate(self, value, instance=None):
+        if value is not None:
+            value = self.cast(value)
+        self.validate(value, instance=instance)
+        return value
 
     def cast(self, value):
         if self._cast is not None:
