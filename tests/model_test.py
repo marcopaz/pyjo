@@ -180,15 +180,17 @@ class TestModel(unittest.TestCase):
         class A(Model):
             foo = Field(type=int)
             bar = Field(type=int, default=1)
+            flag = Field(type=bool, default=False)
 
         a = A()
-        self.assertEqual(a.to_dict(), {'bar': 1})
+        self.assertEqual(a.to_dict(), {'bar': 1, 'flag': False})
 
         a.foo = 10
-        self.assertEqual(a.to_dict(), {'foo': 10, 'bar': 1})
+        self.assertEqual(a.to_dict(), {'foo': 10, 'bar': 1, 'flag': False})
 
         del a.foo
         del a.bar
+        del a.flag
         self.assertEqual(a.to_dict(), {})
 
     def test_del_property(self):
