@@ -1,4 +1,4 @@
-from pyjo.exceptions import FieldTypeError, ValidationError
+from pyjo.exceptions import FieldTypeError, ValidationError, RequiredFieldError
 
 orig_type = type
 
@@ -91,6 +91,9 @@ class Field(object):
     def validate(self, value, instance=None):
         if not self.required and value is None:
             return
+
+        if self.required and value is None:
+            raise RequiredFieldError('Field \'{}\' is required'.format(self.name))
 
         if self._type is not None and not isinstance(value, self._type):
             raise FieldTypeError(

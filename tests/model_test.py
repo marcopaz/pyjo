@@ -26,6 +26,14 @@ class TestModel(unittest.TestCase):
         a = A()
         self.assertEquals(a.foo, 'hello')
 
+    def test_required_empty_assignment(self):
+        class A(Model):
+            foo = Field(type=str, required=True)
+
+        a = A(foo='bar')
+        self.assertEquals(a.foo, 'bar')
+        with self.assertRaises(RequiredFieldError):
+            a.foo = None
 
     def test_default_value(self):
         class A(Model):

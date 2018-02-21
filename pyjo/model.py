@@ -68,7 +68,6 @@ class Model(with_metaclass(ModelMetaclass, object)):
     def __init__(self, **kwargs):
         self._data = {}
         self._set_defaults(kwargs)
-        self._check_required_attributes(kwargs)
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
 
@@ -81,12 +80,6 @@ class Model(with_metaclass(ModelMetaclass, object)):
                 else:
                     value = field.default
             kwargs[name] = value
-
-    def _check_required_attributes(self, kwargs):
-        for name, field in iteritems(self._fields):
-            value = kwargs.get(name)
-            if field.required and value is None:
-                raise RequiredFieldError('Field \'{}\' is required'.format(name))
 
     @classmethod
     def from_dict(cls, data, discard_non_fields=True):
