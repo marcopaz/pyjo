@@ -49,7 +49,7 @@ User(name='john', age=18, address=Address(city='NYC'))
 # <User(name=john)>
 ```
 
-When the `type` argument is provided, the type of the value of assigned to a field will be checked during initialization and assignment:
+When the `type` argument is provided, the type of the value assigned to a field will be checked during initialization and assignment:
 
 ```python
 User(name=123)
