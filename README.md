@@ -112,6 +112,7 @@ The `Field` object has several _optional_ arguments:
 * `required` boolean flag to indicate if the field must be specified and can't be `None` (`False` by default)
 * `repr` boolean flag to indicate if the field/value should be shown in the Python representation of the object, when printed (`False` by default)
 * `to_dict`, `from_dict` (functions) to add ad-hoc serialization/deserialization for the field
+* `validator` (function) function that gets called to validate the input of a field
 * `cast` (function) cast value of the field (if not empty) before assignment
 
 ## Model
