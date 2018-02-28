@@ -4,9 +4,8 @@ orig_type = type
 
 
 class Field(object):
-    name = None
-
-    _type = None
+    _name = None  # name of the field, for error messages
+    _type = None  # type of the field
     _repr = False  # show value in string representation of the python object
 
     def __init__(self, default=None, required=False, type=None, validator=None, to_dict=None, from_dict=None,
@@ -77,7 +76,16 @@ class Field(object):
     def has_value(self, instance):
         return instance._data.get(self.name) is not None
 
-    def after_name(self):
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.after_name_set()
+
+    def after_name_set(self):
         """
         Function called after the name has been assigned to the field instance
         """

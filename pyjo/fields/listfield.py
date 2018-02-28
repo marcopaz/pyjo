@@ -11,7 +11,7 @@ class ListField(Field):
         super(ListField, self).__init__(type=list, **kwargs)
         self.inner_field = inner_field
 
-    def after_name(self):
+    def after_name_set(self):
         self.inner_field.name = '{} inner field'.format(self.name)
 
     def cast(self, value):

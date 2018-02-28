@@ -13,7 +13,7 @@ class MapField(Field):
         super(MapField, self).__init__(type=dict, **kwargs)
         self.inner_field = inner_field
 
-    def after_name(self):
+    def after_name_set(self):
         self.inner_field.name = '{} inner field'.format(self.name)
 
     def cast(self, value):
