@@ -13,6 +13,9 @@ class MapField(Field):
         super(MapField, self).__init__(type=dict, **kwargs)
         self.inner_field = inner_field
 
+    def after_name(self):
+        self.inner_field.name = '{} inner field'.format(self.name)
+
     def cast(self, value):
         value = super(MapField, self).cast(value)
         if not isinstance(value, dict):
@@ -26,7 +29,6 @@ class MapField(Field):
         super(MapField, self).validate(value, **kwargs)
         if not value:
             return
-        self.inner_field.name = self.name
         for k, v in value.items():
             self.inner_field.validate(v)
 

@@ -77,6 +77,12 @@ class Field(object):
     def has_value(self, instance):
         return instance._data.get(self.name) is not None
 
+    def after_name(self):
+        """
+        Function called after the name has been assigned to the field instance
+        """
+        pass
+
     def cast_and_validate(self, value, instance=None):
         if value is not None:
             value = self.cast(value)

@@ -111,6 +111,17 @@ class MapFieldTest(unittest.TestCase):
         b = B(data={'one': '1'})
         assert b.data['one'] == 1
 
+    def test_name_inner_field(self):
+        class A(Model):
+            foo = MapField(Field(type=int))
+
+        a = A()
+        try:
+            a.foo = {'foo': 'bar'}
+            raise Exception('should have raised a FieldTypeError')
+        except FieldTypeError as e:
+            assert 'foo inner field value is not of type' in str(e)
+
 
 if __name__ == '__main__':
     unittest.main()

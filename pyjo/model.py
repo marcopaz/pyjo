@@ -31,6 +31,7 @@ class ModelMetaclass(type):
                 if not isinstance(attr_value, Field):
                     continue
                 attr_value.name = attr_name
+                attr_value.after_name()
                 fields[attr_name] = attr_value
             _fields.update(fields)
 
@@ -39,6 +40,7 @@ class ModelMetaclass(type):
             if not isinstance(attr_value, Field):
                 continue
             attr_value.name = attr_name
+            attr_value.after_name()
             _fields[attr_name] = attr_value
 
         attrs['_fields'] = _fields

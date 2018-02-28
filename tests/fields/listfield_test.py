@@ -77,6 +77,17 @@ class ListFieldTest(unittest.TestCase):
         assert a.foo[1] == 2
         assert a.foo[2] == 5
 
+    def test_name_inner_field(self):
+        class A(Model):
+            foo = ListField(Field(type=int))
+
+        a = A()
+        try:
+            a.foo = ['asd']
+            raise Exception('should have raised a FieldTypeError')
+        except FieldTypeError as e:
+            assert 'foo inner field value is not of type' in str(e)
+
 
 if __name__ == '__main__':
     unittest.main()

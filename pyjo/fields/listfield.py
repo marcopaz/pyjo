@@ -11,6 +11,9 @@ class ListField(Field):
         super(ListField, self).__init__(type=list, **kwargs)
         self.inner_field = inner_field
 
+    def after_name(self):
+        self.inner_field.name = '{} inner field'.format(self.name)
+
     def cast(self, value):
         value = super(ListField, self).cast(value)
         if not isinstance(value, list):
@@ -24,7 +27,6 @@ class ListField(Field):
         super(ListField, self).validate(value, **kwargs)
         if not value:
             return
-        self.inner_field.name = self.name
         for v in value:
             self.inner_field.validate(v)
 
