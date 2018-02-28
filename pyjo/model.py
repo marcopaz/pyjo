@@ -70,23 +70,23 @@ class Model(with_metaclass(ModelMetaclass, object)):
     def __init__(self, **kwargs):
         self._data = {}
         self._set_defaults(kwargs)
-        for kwarg in kwargs:
-            setattr(self, kwarg, kwargs[kwarg])
+        self._set_values(kwargs)
 
     def _set_defaults(self, kwargs):
         for name, field in iteritems(self._fields):
             value = kwargs.get(name)
             if value is None and field.default is not None:
-                if callable(field.default):
-                    value = field.default()
-                else:
-                    value = field.default
-            kwargs[name] = value
+                value = field.default() if callable(field.default) else field.default
+            kwargs[name] = value  # will set None to undefined args
+
+    def _set_values(self, data):
+        for key in data:
+            setattr(self, key, data[key])
 
     @classmethod
     def from_dict(cls, data, discard_non_fields=True):
         if not isinstance(data, dict):
-            raise TypeError('must be a dict')
+            raise TypeError('data must be a dictionary')
         field_values = {}
         for name, field in iteritems(cls._fields):
             value = data.get(name)
@@ -100,19 +100,19 @@ class Model(with_metaclass(ModelMetaclass, object)):
 
     def update_from_dict(self, data, discard_non_fields=True):
         if not isinstance(data, dict):
-            raise TypeError('must be a dict')
+            raise TypeError('data must be a dictionary')
 
         field_values = {}
-        for name, field in iteritems(self._fields):
-            value = data.get(name)
-            field_values[name] = field.from_dict(value)
+        for key, value in iteritems(data):
+            if self._fields.get(key) is not None:
+                field = self._fields[key]
+                field_values[key] = field.from_dict(value)
         if discard_non_fields:
             data = field_values
         else:
             data.update(field_values)
 
-        for k,v in iteritems(data):
-            setattr(self, k, v)
+        self._set_values(data)
 
     def to_dict(self):
         res = {}

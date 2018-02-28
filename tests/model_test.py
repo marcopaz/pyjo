@@ -230,6 +230,35 @@ class TestModel(unittest.TestCase):
         a.foo = None
         self.assertEqual(a.foo, None)
 
+    def test_update_from_dict(self):
+        class A(Model):
+            a = Field(type=str)
+            b = Field(type=int, required=True)
+
+        o = A(a='test', b=12)
+
+        with self.assertRaises(RequiredFieldError):
+            o.update_from_dict({
+                'a': 'test2',
+                'b': None,
+            })
+
+        with self.assertRaises(FieldTypeError):
+            o.update_from_dict({
+                'a': 12,
+            })
+
+        o.update_from_dict({
+            'a': 'foo',
+        })
+        self.assertEquals(o.a, 'foo')
+        self.assertEquals(o.b, 12)
+
+        o.update_from_dict({
+            'b': 1,
+        })
+        self.assertEquals(o.b, 1)
+
 
 if __name__ == '__main__':
     unittest.main()
