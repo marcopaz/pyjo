@@ -71,6 +71,7 @@ class Model(with_metaclass(ModelMetaclass, object)):
         self._data = {}
         self._set_defaults(kwargs)
         self._set_values(kwargs)
+        self.after_init()
 
     def _set_defaults(self, kwargs):
         for name, field in iteritems(self._fields):
@@ -82,6 +83,9 @@ class Model(with_metaclass(ModelMetaclass, object)):
     def _set_values(self, data):
         for key in data:
             setattr(self, key, data[key])
+
+    def after_init(self):
+        pass
 
     @classmethod
     def from_dict(cls, data, discard_non_fields=True):

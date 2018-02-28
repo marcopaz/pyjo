@@ -259,6 +259,25 @@ class TestModel(unittest.TestCase):
         })
         self.assertEquals(o.b, 1)
 
+    def test_after_init_hook(self):
+        class A(Model):
+            foo = Field(type=str)
+            bar = Field(type=int)
+
+            def after_init(self):
+                self.validate()
+
+            def validate(self):
+                if self.foo is None and self.bar is None:
+                    raise ValidationError('one between foo and bar must be set')
+
+        a = A(foo='hello', bar=1)
+        a = A(foo='hello')
+        a = A(bar=1)
+
+        with self.assertRaises(ValidationError):
+            a = A()
+
 
 if __name__ == '__main__':
     unittest.main()
