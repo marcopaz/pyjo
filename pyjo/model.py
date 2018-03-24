@@ -24,7 +24,7 @@ class ModelMetaclass(type):
         _fields = {}
         flattened_bases = cls._get_bases(bases)
         for base in flattened_bases[::-1]:
-            if hasattr(base, '_fields'):
+            if hasattr(base, '_fields') and base._fields is not None:
                 _fields.update(base._fields)
             fields = {}
             for attr_name, attr_value in iteritems(base.__dict__):
@@ -63,6 +63,7 @@ class ModelMetaclass(type):
 
 class Model(with_metaclass(ModelMetaclass, object)):
 
+    _fields = None
     my_metaclass = ModelMetaclass
 
     def __init__(self, **kwargs):
